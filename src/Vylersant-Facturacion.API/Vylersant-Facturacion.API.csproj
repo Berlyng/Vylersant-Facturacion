@@ -9,11 +9,15 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Vylersant-Facturacion.Application\Vylersant-Facturacion.Application.csproj" />
+    <ProjectReference Include="..\Vylersant-Facturacion.Contracts\Vylersant-Facturacion.Contracts.csproj" />
     <ProjectReference Include="..\Vylersant-Facturacion.Infrastructure\Vylersant-Facturacion.Infrastructure.csproj" />
   </ItemGroup>
 
