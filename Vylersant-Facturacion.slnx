@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Vylersant-Facturacion.Api/Vylersant-Facturacion.Api.csproj" />
+    <Project Path="src/Vylersant-Facturacion.Application/Vylersant-Facturacion.Application.csproj" />
+    <Project Path="src/Vylersant-Facturacion.Contracts/Vylersant-Facturacion.Contracts.csproj" />
+    <Project Path="src/Vylersant-Facturacion.Desktop/Vylersant-Facturacion.Desktop.csproj" />
+    <Project Path="src/Vylersant-Facturacion.Domain/Vylersant-Facturacion.Domain.csproj" />
+    <Project Path="src/Vylersant-Facturacion.Infrastructure/Vylersant-Facturacion.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Vylersant-Facturacion.Application.Tests/Vylersant-Facturacion.Application.Tests.csproj" />
+    <Project Path="tests/Vylersant-Facturacion.Domain.Tests/Vylersant-Facturacion.Domain.Tests.csproj" />
+    <Project Path="tests/Vylersant-Facturacion.IntegrationTests/Vylersant-Facturacion.IntegrationTests.csproj" />
+  </Folder>
+</Solution>

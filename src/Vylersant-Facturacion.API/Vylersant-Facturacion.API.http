@@ -1,0 +1,6 @@
+@Vylersant_Facturacion.API_HostAddress = http://localhost:5279
+
+GET {{Vylersant_Facturacion.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
