@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Vylersant_Facturacion.API</RootNamespace>
+    <UserSecretsId>74227b14-953e-4ea5-ae2a-61daeeb42f3d</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
