@@ -16,6 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Vylersant-Facturacion.Application\Vylersant-Facturacion.Application.csproj" />
+    <ProjectReference Include="..\..\src\Vylersant-Facturacion.Domain\Vylersant-Facturacion.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 
