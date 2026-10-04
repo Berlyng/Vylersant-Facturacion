@@ -9,4 +9,8 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Vylersant-Facturacion.Contracts\Vylersant-Facturacion.Contracts.csproj" />
+  </ItemGroup>
+
 </Project>
