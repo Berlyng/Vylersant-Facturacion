@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Vylersant_Facturacion.Domain.Entities.Businesses;
+using Vylersant_Facturacion.Domain.Entities.Users;
 
 namespace Vylersant_Facturacion.Infrastructure.Persistence
 {
@@ -11,6 +13,18 @@ namespace Vylersant_Facturacion.Infrastructure.Persistence
             : base(options)
         {
 
+        }
+
+        public DbSet<Business> Businesses => Set<Business>();
+
+        public DbSet<User> Users => Set<User>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfigurationsFromAssembly(
+                typeof(VylersantFacturacionDbContext).Assembly);
         }
     }
 }
