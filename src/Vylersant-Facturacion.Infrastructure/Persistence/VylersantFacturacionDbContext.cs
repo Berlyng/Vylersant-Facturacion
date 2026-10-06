@@ -2,12 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Vylersant_Facturacion.Application.Abstraccion;
 using Vylersant_Facturacion.Domain.Entities.Businesses;
 using Vylersant_Facturacion.Domain.Entities.Users;
 
 namespace Vylersant_Facturacion.Infrastructure.Persistence
 {
-    public sealed class VylersantFacturacionDbContext : DbContext
+    public sealed class VylersantFacturacionDbContext : DbContext, IUnitOfWork
     {
         public VylersantFacturacionDbContext(DbContextOptions<VylersantFacturacionDbContext> options)
             : base(options)
