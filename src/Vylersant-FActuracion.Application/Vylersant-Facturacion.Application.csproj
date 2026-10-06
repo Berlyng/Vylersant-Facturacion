@@ -7,4 +7,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Vylersant-Facturacion.Domain\Vylersant-Facturacion.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
