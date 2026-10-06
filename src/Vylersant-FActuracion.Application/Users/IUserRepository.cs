@@ -9,6 +9,6 @@ namespace Vylersant_Facturacion.Application.Users
     {
         Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken);
         Task AddAsync(User user, CancellationToken cancellationToken);
-        Task SaveChangesAsync(CancellationToken cancellationToken);
+  
     }
 }

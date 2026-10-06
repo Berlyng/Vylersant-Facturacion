@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Vylersant_Facturacion.Application.Abstraccion;
+using Vylersant_Facturacion.Application.Bussinesses;
 using Vylersant_Facturacion.Application.Security;
 using Vylersant_Facturacion.Application.Users;
 using Vylersant_Facturacion.Infrastructure.Persistence;
@@ -22,6 +24,9 @@ namespace Vylersant_Facturacion.Infrastructure
             // Agrega otros servicios de infraestructura según sea necesario
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
+            services.AddScoped<IBussinesRepository, BussinesRepository>();
+            services.AddScoped<IUnitOfWork>(
+            serviceProvider =>serviceProvider.GetRequiredService<VylersantFacturacionDbContext>());
             return services;
         }
     }

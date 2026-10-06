@@ -25,10 +25,7 @@ namespace Vylersant_Facturacion.Infrastructure.Repository
             return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == normalizedEmail, cancellationToken);
         }
 
-        public async Task SaveChangesAsync(CancellationToken cancellationToken)
-        {
-            await _dbContext.SaveChangesAsync(cancellationToken);
-        }
+
     }
 }
 
