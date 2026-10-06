@@ -10,6 +10,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/Vylersant-Facturacion.Application.Tests/Vylersant-Facturacion.Application.Tests.csproj" />
     <Project Path="tests/Vylersant-Facturacion.Domain.Tests/Vylersant-Facturacion.Domain.Tests.csproj" />
+    <Project Path="tests/Vylersant-Facturacion.Infrastructure.Tests/Vylersant-Facturacion.Infrastructure.Tests.csproj" />
     <Project Path="tests/Vylersant-Facturacion.IntegrationTests/Vylersant-Facturacion.IntegrationTests.csproj" />
   </Folder>
 </Solution>
