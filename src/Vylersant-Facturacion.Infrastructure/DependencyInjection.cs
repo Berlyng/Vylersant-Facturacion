@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Vylersant_Facturacion.Application.Users;
 using Vylersant_Facturacion.Infrastructure.Persistence;
+using Vylersant_Facturacion.Infrastructure.Repository;
 
 namespace Vylersant_Facturacion.Infrastructure
 {
@@ -16,6 +18,7 @@ namespace Vylersant_Facturacion.Infrastructure
             services.AddDbContext<VylersantFacturacionDbContext>(options =>
                 options.UseSqlServer(connectionString));
             // Agrega otros servicios de infraestructura según sea necesario
+            services.AddScoped<IUserRepository, UserRepository>();
             return services;
         }
     }
