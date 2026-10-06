@@ -8,7 +8,7 @@ using Vylersant_Facturacion.Infrastructure.Persistence;
 
 namespace Vylersant_Facturacion.Infrastructure.Repository
 {
-    public sealed class BussinesRepository : IBussinesRepository
+    public class BussinesRepository : IBussinesRepository
     {
         private readonly VylersantFacturacionDbContext _dbContext;
         public async Task AddAsync(Business bussines, CancellationToken cancellationToken = default)
