@@ -27,6 +27,7 @@ namespace Vylersant_Facturacion.Infrastructure
             services.AddScoped<IBussinesRepository, BussinesRepository>();
             services.AddScoped<IUnitOfWork>(
             serviceProvider =>serviceProvider.GetRequiredService<VylersantFacturacionDbContext>());
+            services.AddSingleton<ITokenService, JwtTokenService>();
             return services;
         }
     }

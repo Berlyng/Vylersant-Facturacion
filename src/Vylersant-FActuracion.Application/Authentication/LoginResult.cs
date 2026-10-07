@@ -10,6 +10,8 @@ namespace Vylersant_Facturacion.Application.Authentication
         Guid BusinessId,
         string Name,
         string Email,
-        UserRole Role);
+        UserRole Role,
+        string AccessToken,
+        DateTime ExpiresAtUtc);
   
 }
