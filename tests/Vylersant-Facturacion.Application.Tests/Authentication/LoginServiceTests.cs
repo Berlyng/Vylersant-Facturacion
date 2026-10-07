@@ -25,8 +25,9 @@ namespace Vylersant_Facturacion.Application.Tests.Authentication
 
             var userRepository = new FakeUserRepository { ExistingUser = user };
             var passwordHasher = new FakePasswordHasher();
+            var tokenService = new FakeTokenService();
 
-            var service = new LoginService(userRepository, passwordHasher);
+            var service = new LoginService(userRepository, passwordHasher, tokenService);
 
             var request = new LoginRequest("test@example.com", rawPassword);
             
@@ -39,6 +40,8 @@ namespace Vylersant_Facturacion.Application.Tests.Authentication
             Assert.Equal(user.Name, result.Name);
             Assert.Equal(user.Email, result.Email);
             Assert.Equal(UserRole.Owner, result.Role);
+            Assert.Equal("fake-access-token",result.AccessToken);
+
 
 
         }
@@ -49,7 +52,8 @@ namespace Vylersant_Facturacion.Application.Tests.Authentication
             // Arrange
             var userRepository = new FakeUserRepository { ExistingUser = null };
             var passwordHasher = new FakePasswordHasher();
-            var service = new LoginService(userRepository, passwordHasher);
+            var tokenService = new FakeTokenService();
+            var service = new LoginService(userRepository, passwordHasher, tokenService);
             var request = new LoginRequest("nonexistent@example.com", "hashedpassword");
 
             // Act & Assert
@@ -70,8 +74,9 @@ namespace Vylersant_Facturacion.Application.Tests.Authentication
 
             var userRepository = new FakeUserRepository { ExistingUser = user };
             var passwordHasher = new FakePasswordHasher();
+            var tokenService = new FakeTokenService();
 
-            var service = new LoginService(userRepository, passwordHasher);
+            var service = new LoginService(userRepository, passwordHasher, tokenService);
 
             var request = new LoginRequest("test@example.com", "incorrectpassword");
 
@@ -94,8 +99,9 @@ namespace Vylersant_Facturacion.Application.Tests.Authentication
 
             var userRepository = new FakeUserRepository { ExistingUser = user };
             var passwordHasher = new FakePasswordHasher();
+            var tokenService = new FakeTokenService();
 
-            var service = new LoginService(userRepository, passwordHasher);
+            var service = new LoginService(userRepository, passwordHasher, tokenService);
 
             var request = new LoginRequest("test@example.com", "hashedpassword");
 
@@ -138,6 +144,16 @@ namespace Vylersant_Facturacion.Application.Tests.Authentication
                 string passwordHash)
             {
                 return passwordHash == $"HASHED:{password}";
+            }
+        }
+
+        private sealed class FakeTokenService : ITokenService
+        {
+            public AccessToken Generate(User user)
+            {
+                return new AccessToken(
+                    "fake-access-token",
+                    DateTime.UtcNow.AddMinutes(30));
             }
         }
 

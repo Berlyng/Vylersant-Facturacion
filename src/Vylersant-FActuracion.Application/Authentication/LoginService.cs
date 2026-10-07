@@ -10,11 +10,13 @@ namespace Vylersant_Facturacion.Application.Authentication
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
+        private readonly ITokenService _tokenService;
 
-        public LoginService(IUserRepository userRepository, IPasswordHasher passwordHasher)
+        public LoginService(IUserRepository userRepository, IPasswordHasher passwordHasher, ITokenService tokenService)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
+            _tokenService = tokenService;
         }
 
         public async Task<LoginResult> ExecuteAsync(LoginRequest request, CancellationToken cancellationToken)
@@ -32,12 +34,17 @@ namespace Vylersant_Facturacion.Application.Authentication
             {
                 throw new InvalidCredentialsException();
             }
+
+            var accessToken = _tokenService.Generate(user);
             return new LoginResult(
                 user.Id,
                 user.BusinessId,
                 user.Name,
                 user.Email,
-                user.Role);
+                user.Role,
+                accessToken.Token,
+                accessToken.ExpiresAtUtc
+                );
         }
     }
 }
