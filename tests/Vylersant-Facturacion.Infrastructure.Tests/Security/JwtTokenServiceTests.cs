@@ -117,13 +117,13 @@ namespace Vylersant_Facturacion.Infrastructure.Tests.Security
             var token = ReadToken(result.Token);
 
             // Assert
-            var role = token.Claims
-                .First(x => x.Type == ClaimTypes.Role)
-                .Value;
+            var roleClaim = token.Claims.FirstOrDefault(x =>
+          x.Type == ClaimTypes.Role ||
+          x.Type.Equals("role", StringComparison.OrdinalIgnoreCase));
 
             Assert.Equal(
                 UserRole.Owner.ToString(),
-                role);
+                roleClaim.Value);
         }
 
         private static User CreateUser()

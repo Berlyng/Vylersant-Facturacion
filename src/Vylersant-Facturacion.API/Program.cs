@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Vylersant_Facturacion.API.Errors;
 using Vylersant_Facturacion.Application;
+using Vylersant_Facturacion.Application.Security;
 using Vylersant_Facturacion.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,39 +14,50 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 
 // Add services to the container.
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-var jwtSection = builder.Configuration.GetSection("Jwt");
-
-var jwtKey = jwtSection["Key"]
-    ?? throw new InvalidOperationException(
-        "No se encontró la configuración Jwt:Key.");
-
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters =
-            new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
+    .AddJwtBearer();
 
-                ValidIssuer = jwtSection["Issuer"],
-                ValidAudience = jwtSection["Audience"],
+builder.Services
+    .AddOptions<JwtBearerOptions>(
+        JwtBearerDefaults.AuthenticationScheme)
+    .Configure<IOptions<JwtSettings>>(
+        (options, jwtOptions) =>
+        {
+            var settings = jwtOptions.Value;
 
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(jwtKey)),
+            options.MapInboundClaims = false;
 
-                ClockSkew = TimeSpan.Zero
-            };
-    });
+            options.TokenValidationParameters =
+                new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+
+                    ValidIssuer = settings.Issuer,
+                    ValidAudience = settings.Audience,
+
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(settings.Key)),
+
+                    NameClaimType = TokenClaimNames.Name,
+                    RoleClaimType = TokenClaimNames.Role,
+
+                    ClockSkew = TimeSpan.Zero
+                };
+        });
 
 builder.Services.AddAuthorization();
+
 
 var app = builder.Build();
 
@@ -58,6 +72,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
@@ -66,3 +81,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program
+{
+}

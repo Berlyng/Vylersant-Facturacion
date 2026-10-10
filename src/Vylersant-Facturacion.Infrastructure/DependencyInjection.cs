@@ -13,21 +13,33 @@ namespace Vylersant_Facturacion.Infrastructure
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddInfrastructure(
+     this IServiceCollection services,
+     IConfiguration configuration)
         {
-            // Aquí puedes agregar la configuración de tus servicios de infraestructura
-            // Por ejemplo, si estás usando Entity Framework Core:
-            var connectionString = configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("No se encontró la cadena de conexión 'DefaultConnection'.");
+            var connectionString =
+                configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException(
+                    "No se encontró la cadena de conexión 'DefaultConnection'.");
+
             services.AddDbContext<VylersantFacturacionDbContext>(options =>
                 options.UseSqlServer(connectionString));
-            // Agrega otros servicios de infraestructura según sea necesario
+
             services.AddScoped<IUserRepository, UserRepository>();
+
             services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
+
             services.AddScoped<IBussinesRepository, BussinesRepository>();
+
             services.AddScoped<IUnitOfWork>(
-            serviceProvider =>serviceProvider.GetRequiredService<VylersantFacturacionDbContext>());
+                serviceProvider =>
+                    serviceProvider.GetRequiredService<VylersantFacturacionDbContext>());
+
+            services.Configure<JwtSettings>(
+                configuration.GetSection(JwtSettings.SectionName));
+
             services.AddSingleton<ITokenService, JwtTokenService>();
+
             return services;
         }
     }
