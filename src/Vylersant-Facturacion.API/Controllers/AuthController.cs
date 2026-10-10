@@ -14,6 +14,11 @@ using RegisterBusinessApplication =
     Vylersant_Facturacion.Application.Registration.RegisterBusinessRequest;
 using RegisterBusinessContract =
     Vylersant_Facturacion.Contracts.Authentication.RegisterBusinessRequest;
+using RefreshSessionContract =
+    Vylersant_Facturacion.Contracts.Authentication.RefreshSessionRequest;
+
+using RefreshSessionApplication =
+    Vylersant_Facturacion.Application.Authentication.RefreshSessionRequest;
 
 namespace Vylersant_Facturacion.API.Controllers
 {
@@ -23,11 +28,13 @@ namespace Vylersant_Facturacion.API.Controllers
     {
         private readonly RegisterBussinesService _registerBusinessService;
         private readonly LoginService _loginService;
+        private readonly RefreshSessionService _refreshSessionService;
 
-        public AuthController(RegisterBussinesService registerBusinessService, LoginService loginService)
+        public AuthController(RegisterBussinesService registerBusinessService, LoginService loginService, RefreshSessionService refreshSessionService)
         {
             _registerBusinessService = registerBusinessService;
             _loginService = loginService;
+            _refreshSessionService = refreshSessionService;
         }
 
         [AllowAnonymous]
@@ -70,14 +77,38 @@ namespace Vylersant_Facturacion.API.Controllers
                     cancellationToken);
 
             return Ok(
-                new LoginResponse(
-                    result.UserId,
-                    result.BusinessId,
-                    result.Name,
-                    result.Email,
-                    result.Role.ToString(),
+                    new LoginResponse(
+                        result.UserId,
+                        result.BusinessId,
+                        result.Name,
+                        result.Email,
+                        result.Role.ToString(),
+                        result.AccessToken,
+                        result.AccessTokenExpiresAtUtc,
+                        result.RefreshToken,
+                        result.RefreshTokenExpiresAtUtc));
+        }
+
+
+        [AllowAnonymous]
+        [HttpPost("refresh")]
+        public async Task<ActionResult<RefreshSessionResponse>> Refresh(RefreshSessionContract request,CancellationToken cancellationToken)
+        {
+            var applicationRequest =
+                new RefreshSessionApplication(
+                    request.RefreshToken);
+
+            var result =
+                await _refreshSessionService.ExecuteAsync(
+                    applicationRequest,
+                    cancellationToken);
+
+            return Ok(
+                new RefreshSessionResponse(
                     result.AccessToken,
-                    result.ExpiresAtUtc));
+                    result.AccessTokenExpiresAtUtc,
+                    result.RefreshToken,
+                    result.RefreshTokenExpiresAtUtc));
         }
 
 

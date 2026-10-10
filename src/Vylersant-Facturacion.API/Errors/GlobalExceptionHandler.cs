@@ -21,7 +21,10 @@ namespace Vylersant_Facturacion.API.Errors
                 InvalidCredentialsException => (StatusCodes.Status401Unauthorized, "Credenciales inválidas", "el correo electrónico o la contraseña son incorrectos"),
                 InactiveUserException => (StatusCodes.Status403Forbidden, "Usuario inactivo", "No fue posible iniciar sesión con las credenciales proporcionadas."),
                 ArgumentException => (StatusCodes.Status400BadRequest, "Solicitud inválida", exception.Message),
+                InvalidRefreshTokenException =>(StatusCodes.Status401Unauthorized,"Sesión inválida","El refresh token no es válido o ha expirado."),
                 _ => (StatusCodes.Status500InternalServerError, "Error interno del servidor", "Ocurrió un error inesperado. Por favor, inténtelo de nuevo más tarde.")
+
+
             };
             if (statusCode == StatusCodes.Status500InternalServerError)
             {

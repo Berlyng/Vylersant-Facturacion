@@ -14,10 +14,12 @@ using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
 using Vylersant_Facturacion.Application.Abstraccion;
+using Vylersant_Facturacion.Application.Authentication;
 using Vylersant_Facturacion.Application.Bussinesses;
 using Vylersant_Facturacion.Application.Security;
 using Vylersant_Facturacion.Application.Users;
 using Vylersant_Facturacion.Contracts.Authentication;
+using Vylersant_Facturacion.Domain.Authentication;
 using Vylersant_Facturacion.Domain.Entities.Businesses;
 using Vylersant_Facturacion.Domain.Entities.Users;
 
@@ -25,6 +27,42 @@ namespace Vylersant_Facturacion.IntegrationTests.Authentication
 {
     public class AuthenticationEndpointTests : IClassFixture<Vylersant_FacturacionApiFactory>
     {
+
+        private WebApplicationFactory<Program> CreateSessionFactory(
+    User user)
+        {
+            var userRepository =
+                new FakeUserRepository(user);
+
+            var refreshTokenRepository =
+                new InMemoryRefreshTokenRepository();
+
+            var unitOfWork =
+                new FakeUnitOfWork();
+
+            return _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    services.RemoveAll<IUserRepository>();
+                    services.RemoveAll<IRefreshTokenRepository>();
+                    services.RemoveAll<IPasswordHasher>();
+                    services.RemoveAll<IUnitOfWork>();
+
+                    services.AddSingleton<IUserRepository>(
+                        userRepository);
+
+                    services.AddSingleton<IRefreshTokenRepository>(
+                        refreshTokenRepository);
+
+                    services.AddSingleton<IPasswordHasher>(
+                        new FakePasswordHasher());
+
+                    services.AddSingleton<IUnitOfWork>(
+                        unitOfWork);
+                });
+            });
+        }
         private readonly Vylersant_FacturacionApiFactory _factory;
         private readonly HttpClient _client;
 
@@ -188,6 +226,186 @@ namespace Vylersant_Facturacion.IntegrationTests.Authentication
                 problem.Status);
         }
 
+        [Fact]
+        public async Task Refresh_ShouldReturnNewTokens_WhenRefreshTokenIsValid()
+        {
+            // Arrange
+            const string password = "Password123!";
+
+            var user = new User(
+                Guid.NewGuid(),
+                "John Doe",
+                "test@example.com",
+                $"HASHED:{password}",
+                UserRole.Owner);
+
+            using var factory =
+                CreateSessionFactory(user);
+
+            using var client =
+                factory.CreateClient();
+
+            var loginRequest =
+                new Vylersant_Facturacion.Contracts.Authentication.LoginRequest(
+                    user.Email,
+                    password);
+
+            // Act - Login
+            var loginResponse =
+                await client.PostAsJsonAsync(
+                    "/api/auth/login",
+                    loginRequest);
+
+            // Assert - Login
+            Assert.Equal(
+                HttpStatusCode.OK,
+                loginResponse.StatusCode);
+
+            var loginResult =
+                await loginResponse.Content
+                    .ReadFromJsonAsync<LoginResponse>();
+
+            Assert.NotNull(loginResult);
+
+            Assert.False(
+                string.IsNullOrWhiteSpace(
+                    loginResult.AccessToken));
+
+            Assert.False(
+                string.IsNullOrWhiteSpace(
+                    loginResult.RefreshToken));
+
+            var oldRefreshToken =
+                loginResult.RefreshToken;
+
+            // Act - Refresh
+            var refreshRequest =
+                new Vylersant_Facturacion.Contracts.Authentication.RefreshSessionRequest(
+                    oldRefreshToken);
+
+            var refreshResponse =
+                await client.PostAsJsonAsync(
+                    "/api/auth/refresh",
+                    refreshRequest);
+
+            // Assert - Refresh
+            Assert.Equal(
+                HttpStatusCode.OK,
+                refreshResponse.StatusCode);
+
+            var refreshResult =
+                await refreshResponse.Content
+                    .ReadFromJsonAsync<RefreshSessionResponse>();
+
+            Assert.NotNull(refreshResult);
+
+            Assert.False(
+                string.IsNullOrWhiteSpace(
+                    refreshResult.AccessToken));
+
+            Assert.False(
+                string.IsNullOrWhiteSpace(
+                    refreshResult.RefreshToken));
+
+            Assert.NotEqual(
+                oldRefreshToken,
+                refreshResult.RefreshToken);
+
+            Assert.True(
+                refreshResult.AccessTokenExpiresAtUtc >
+                DateTime.UtcNow);
+
+            Assert.True(
+                refreshResult.RefreshTokenExpiresAtUtc >
+                DateTime.UtcNow);
+        }
+
+        [Fact]
+        public async Task Refresh_ShouldReturnUnauthorized_WhenOldRefreshTokenIsReused()
+        {
+
+
+
+            // Arrange
+            const string password = "Password123!";
+
+            var user = new User(
+                Guid.NewGuid(),
+                "John Doe",
+                "test@example.com",
+                $"HASHED:{password}",
+                UserRole.Owner);
+
+            using var factory =
+                CreateSessionFactory(user);
+
+            using var client =
+                factory.CreateClient();
+
+            // Login
+            var loginResponse =
+                await client.PostAsJsonAsync(
+                    "/api/auth/login",
+                    new Vylersant_Facturacion.Contracts.Authentication.LoginRequest(
+                        user.Email,
+                        password));
+
+
+
+            Assert.Equal(
+                HttpStatusCode.OK,
+                loginResponse.StatusCode);
+
+            var loginResult =
+                await loginResponse.Content
+                    .ReadFromJsonAsync<LoginResponse>();
+
+            Assert.NotNull(loginResult);
+
+            var oldRefreshToken =
+                loginResult.RefreshToken;
+
+            // Primera renovación
+            var firstRefreshResponse =
+                await client.PostAsJsonAsync(
+                    "/api/auth/refresh",
+                    new Vylersant_Facturacion.Contracts.Authentication.RefreshSessionRequest(
+                        oldRefreshToken));
+
+            Assert.Equal(
+                HttpStatusCode.OK,
+                firstRefreshResponse.StatusCode);
+
+            // Act
+            // Intentamos reutilizar el token anterior.
+
+
+            var secondRefreshResponse =
+                await client.PostAsJsonAsync(
+                    "/api/auth/refresh",
+                    new Vylersant_Facturacion.Contracts.Authentication.RefreshSessionRequest(
+                        oldRefreshToken));
+
+            var problem =
+                 await secondRefreshResponse.Content
+                   .ReadFromJsonAsync<ProblemDetails>();
+
+            Assert.NotNull(problem);
+
+            Assert.Equal(
+                "Sesión inválida",
+                problem.Title);
+
+            Assert.Equal(
+                StatusCodes.Status401Unauthorized,
+                problem.Status);
+
+            // Assert
+            Assert.Equal(
+                HttpStatusCode.Unauthorized,
+                secondRefreshResponse.StatusCode);
+        }
+
 
 
         private static string CreateAccessToken(
@@ -278,6 +496,15 @@ namespace Vylersant_Facturacion.IntegrationTests.Authentication
             {
                 return Task.CompletedTask;
             }
+
+            public Task<User> GetByIdAsync(Guid userId, CancellationToken cancellationToken)
+            {
+
+                User? result =_existingUser.Id == userId
+                    ? _existingUser
+              : null;
+                return Task.FromResult(result!);
+            }
         }
 
         private sealed class FakeBusinessRepository
@@ -309,11 +536,44 @@ namespace Vylersant_Facturacion.IntegrationTests.Authentication
 
         private sealed class FakeUnitOfWork : IUnitOfWork
         {
+
+            public int SaveChangesCallCount { get; private set; }
             public Task<int> SaveChangesAsync(
                 CancellationToken cancellationToken = default)
             {
+
+                SaveChangesCallCount++;
                 return Task.FromResult(1);
             }
         }
+
+        private sealed class InMemoryRefreshTokenRepository
+    : IRefreshTokenRepository
+        {
+            private readonly List<RefreshToken> _tokens = [];
+
+            public Task<RefreshToken?> GetByHashAsync(
+                string tokenHash,
+                CancellationToken cancellationToken = default)
+            {
+                var token = _tokens
+                    .FirstOrDefault(x => x.TokenHash == tokenHash);
+
+                return Task.FromResult(token);
+            }
+
+            public Task AddAsync(
+                RefreshToken refreshToken,
+                CancellationToken cancellationToken = default)
+            {
+                _tokens.Add(refreshToken);
+
+                return Task.CompletedTask;
+            }
+        }
+
+     
+
+
     }
 }

@@ -25,7 +25,10 @@ namespace Vylersant_Facturacion.Infrastructure.Repository
             return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == normalizedEmail, cancellationToken);
         }
 
-
+        public async Task<User> GetByIdAsync(Guid userId, CancellationToken cancellationToken)
+        {
+            return await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+        }
     }
 }
 

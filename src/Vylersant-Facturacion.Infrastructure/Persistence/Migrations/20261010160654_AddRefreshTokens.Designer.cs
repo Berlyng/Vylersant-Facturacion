@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vylersant_Facturacion.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using Vylersant_Facturacion.Infrastructure.Persistence;
 namespace Vylersant_Facturacion.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(VylersantFacturacionDbContext))]
-    partial class VylersantFacturacionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261010160654_AddRefreshTokens")]
+    partial class AddRefreshTokens
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
