@@ -1,9 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Runtime;
 using System.Security.Claims;
 using System.Text;
 using Vylersant_Facturacion.Application.Security;
@@ -26,13 +23,13 @@ namespace Vylersant_Facturacion.Infrastructure.Security
                 DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes);
 
             var claims = new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new("business_id", user.BusinessId.ToString()),
-            new(JwtRegisteredClaimNames.Email, user.Email),
-            new(ClaimTypes.Name, user.Name),
-            new(ClaimTypes.Role, user.Role.ToString())
-        };
+            {
+                new(TokenClaimNames.UserId, user.Id.ToString()),
+                new(TokenClaimNames.BusinessId, user.BusinessId.ToString()),
+                new(TokenClaimNames.Email, user.Email),
+                new(TokenClaimNames.Name, user.Name),
+                new(TokenClaimNames.Role, user.Role.ToString())
+            };
 
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_jwtSettings.Key));
