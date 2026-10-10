@@ -25,6 +25,7 @@ namespace Vylersant_Facturacion.IntegrationTests
                     ["Jwt:Key"] = Key,
                     ["Jwt:SecretKey"] = Key,
                     ["Jwt:ExpirationMinutes"] = "30",
+                    ["RefreshToken:ExpirationDays"] = "7",
 
                     ["ConnectionStrings:DefaultConnection"] = "Server=(localdb)\\MSSQLLocalDB;"
                     + "Database=VylersantFacturacionDbTests;" +

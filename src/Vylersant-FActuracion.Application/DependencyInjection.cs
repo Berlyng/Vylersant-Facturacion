@@ -10,6 +10,7 @@ namespace Vylersant_Facturacion.Application
         {
             services.AddScoped<RegisterBussinesService>();
             services.AddScoped<LoginService>();
+            services.AddScoped<RefreshSessionService>();
             return services;
         }
     }

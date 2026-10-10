@@ -2,10 +2,12 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vylersant_Facturacion.Application.Abstraccion;
+using Vylersant_Facturacion.Application.Authentication;
 using Vylersant_Facturacion.Application.Bussinesses;
 using Vylersant_Facturacion.Application.Security;
 using Vylersant_Facturacion.Application.Users;
 using Vylersant_Facturacion.Infrastructure.Persistence;
+using Vylersant_Facturacion.Infrastructure.Repositories;
 using Vylersant_Facturacion.Infrastructure.Repository;
 using Vylersant_Facturacion.Infrastructure.Security;
 
@@ -39,6 +41,11 @@ namespace Vylersant_Facturacion.Infrastructure
                 configuration.GetSection(JwtSettings.SectionName));
 
             services.AddSingleton<ITokenService, JwtTokenService>();
+            services.AddSingleton<IRefreshTokenService, RefreshTokenService>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+            services.Configure<RefreshTokenOptions>(
+                configuration.GetSection("RefreshToken"));
 
             return services;
         }

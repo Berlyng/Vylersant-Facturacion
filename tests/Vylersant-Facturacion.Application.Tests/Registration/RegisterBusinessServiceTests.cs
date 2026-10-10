@@ -157,6 +157,11 @@ namespace Vylersant_Facturacion.Application.Tests.Registration
 
                 return Task.CompletedTask;
             }
+
+            public Task<User> GetByIdAsync(Guid userId, CancellationToken cancellationToken)
+            {
+                return Task.FromResult(ExistingUser!);
+            }
         }
 
         private sealed class FakePasswordHasher : IPasswordHasher
