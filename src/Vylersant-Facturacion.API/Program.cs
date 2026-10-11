@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using System.Text;
 using Vylersant_Facturacion.API.Errors;
 using Vylersant_Facturacion.Application;
@@ -19,7 +20,43 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer(
+        (document, context, cancellationToken) =>
+        {
+            document.Components ??=
+                new OpenApiComponents();
+
+            document.Components.SecuritySchemes =
+                new Dictionary<string, IOpenApiSecurityScheme>
+                {
+                    ["Bearer"] = new OpenApiSecurityScheme
+                    {
+                        Type = SecuritySchemeType.Http,
+                        Scheme = "bearer",
+                        BearerFormat = "JWT",
+                        In = ParameterLocation.Header,
+                        Description = "Ingrese el Access Token JWT."
+                    }
+                };
+
+            document.Security ??=
+                new List<OpenApiSecurityRequirement>();
+
+            document.Security.Add(
+                new OpenApiSecurityRequirement
+                {
+                    [
+                        new OpenApiSecuritySchemeReference(
+                            "Bearer",
+                            document)
+                    ] = []
+                });
+
+            return Task.CompletedTask;
+        });
+});
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer();
