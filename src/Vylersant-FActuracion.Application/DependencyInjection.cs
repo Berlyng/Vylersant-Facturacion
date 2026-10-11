@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Vylersant_Facturacion.Application.Authentication;
+using Vylersant_Facturacion.Application.Customers;
 using Vylersant_Facturacion.Application.Products;
 using Vylersant_Facturacion.Application.Registration;
 
@@ -17,6 +18,7 @@ namespace Vylersant_Facturacion.Application
             services.AddScoped<GetProductByIdService>();
             services.AddScoped<UpdateProductService>();
             services.AddScoped<ChangeProductStatusService>();
+            services.AddScoped<CreateCustomerService>();
             return services;
         }
     }
