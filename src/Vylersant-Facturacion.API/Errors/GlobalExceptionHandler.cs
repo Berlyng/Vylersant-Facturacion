@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Vylersant_Facturacion.Application.Authentication;
+using Vylersant_Facturacion.Application.Products;
 using Vylersant_Facturacion.Application.Registration;
 
 namespace Vylersant_Facturacion.API.Errors
@@ -22,6 +23,7 @@ namespace Vylersant_Facturacion.API.Errors
                 InactiveUserException => (StatusCodes.Status403Forbidden, "Usuario inactivo", "No fue posible iniciar sesión con las credenciales proporcionadas."),
                 ArgumentException => (StatusCodes.Status400BadRequest, "Solicitud inválida", exception.Message),
                 InvalidRefreshTokenException =>(StatusCodes.Status401Unauthorized,"Sesión inválida","El refresh token no es válido o ha expirado."),
+                ProductNotFoundException =>(StatusCodes.Status404NotFound,"Producto no encontrado","El producto solicitado no fue encontrado."),
                 _ => (StatusCodes.Status500InternalServerError, "Error interno del servidor", "Ocurrió un error inesperado. Por favor, inténtelo de nuevo más tarde.")
 
 

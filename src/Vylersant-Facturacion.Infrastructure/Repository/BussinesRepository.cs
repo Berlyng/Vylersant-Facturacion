@@ -11,6 +11,12 @@ namespace Vylersant_Facturacion.Infrastructure.Repository
     public class BussinesRepository : IBussinesRepository
     {
         private readonly VylersantFacturacionDbContext _dbContext;
+
+        public BussinesRepository(VylersantFacturacionDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
         public async Task AddAsync(Business bussines, CancellationToken cancellationToken = default)
         {
              await _dbContext.Businesses.AddAsync(bussines, cancellationToken);
