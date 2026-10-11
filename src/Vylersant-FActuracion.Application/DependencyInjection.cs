@@ -21,6 +21,7 @@ namespace Vylersant_Facturacion.Application
             services.AddScoped<CreateCustomerService>();
             services.AddScoped<GetCustomersService>();
             services.AddScoped<GetCustomerByIdService>();
+            services.AddScoped<UpdateCustomerService>();
             return services;
         }
     }
