@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Vylersant_Facturacion.Application.Abstraccion;
 using Vylersant_Facturacion.Application.Authentication;
 using Vylersant_Facturacion.Application.Bussinesses;
+using Vylersant_Facturacion.Application.Customers;
 using Vylersant_Facturacion.Application.Products;
 using Vylersant_Facturacion.Application.Security;
 using Vylersant_Facturacion.Application.Users;
@@ -49,6 +50,7 @@ namespace Vylersant_Facturacion.Infrastructure
                 configuration.GetSection("RefreshToken"));
 
             services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
 
             return services;
         }
