@@ -8,6 +8,7 @@
     <Project Path="src/Vylersant-Facturacion.Infrastructure/Vylersant-Facturacion.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <File Path="tests/Vylersant-Facturacion.Application.Tests/Customers/ChangeCustomerStatusService.cs" />
     <Project Path="tests/Vylersant-Facturacion.Application.Tests/Vylersant-Facturacion.Application.Tests.csproj" />
     <Project Path="tests/Vylersant-Facturacion.Domain.Tests/Vylersant-Facturacion.Domain.Tests.csproj" />
     <Project Path="tests/Vylersant-Facturacion.Infrastructure.Tests/Vylersant-Facturacion.Infrastructure.Tests.csproj" />
