@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -307,6 +309,102 @@ public class CustomerEndpointTests
         Assert.Equal(
             1,
             unitOfWork.SaveChangesCallCount);
+    }
+
+    [Fact]
+    public async Task GetAll_ShouldReturnUnauthorized_WhenTokenIsMissing()
+    {
+        // Arrange
+        using var client =
+            _factory.CreateClient();
+
+        // Act
+        var response =
+            await client.GetAsync(
+                "/api/customers");
+
+        // Assert
+        Assert.Equal(
+            HttpStatusCode.Unauthorized,
+            response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Create_ShouldReturnUnauthorized_WhenTokenIsMissing()
+    {
+        // Arrange
+        using var client =
+            _factory.CreateClient();
+
+        var request =
+            new Application.Customers.CreateCustomerRequest(
+                "Cliente",
+                null,
+                null,
+                null);
+
+        // Act
+        var response =
+            await client.PostAsJsonAsync(
+                "/api/customers",
+                request);
+
+        // Assert
+        Assert.Equal(
+            HttpStatusCode.Unauthorized,
+            response.StatusCode);
+    }
+    [Fact]
+    public async Task GetById_ShouldReturnProblemDetails_WhenCustomerDoesNotExist()
+    {
+        // Arrange
+        var businessId =
+            Guid.NewGuid();
+
+        var repository =
+            new InMemoryCustomerRepository([]);
+
+        var unitOfWork =
+            new FakeUnitOfWork();
+
+        using var factory =
+            CreateFactory(
+                repository,
+                unitOfWork);
+
+        var user =
+            CreateUser(
+                businessId,
+                "user@test.com");
+
+        using var client =
+            CreateAuthenticatedClient(
+                factory,
+                user);
+
+        // Act
+        var response =
+            await client.GetAsync(
+                $"/api/customers/{Guid.NewGuid()}");
+
+        // Assert
+        Assert.Equal(
+            HttpStatusCode.NotFound,
+            response.StatusCode);
+
+        var problem =
+            await response.Content
+                .ReadFromJsonAsync<ProblemDetails>();
+
+        Assert.NotNull(problem);
+
+        Assert.Equal(
+            StatusCodes.Status404NotFound,
+            problem.Status);
+
+        Assert.Equal(
+            "Cliente no encontrado",
+            problem.Title);
     }
 
     private WebApplicationFactory<Program> CreateFactory(
