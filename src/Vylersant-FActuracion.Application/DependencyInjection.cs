@@ -13,6 +13,7 @@ namespace Vylersant_Facturacion.Application
             services.AddScoped<LoginService>();
             services.AddScoped<RefreshSessionService>();
             services.AddScoped<CreateProductService>();
+            services.AddScoped<GetProductService>();
             return services;
         }
     }
