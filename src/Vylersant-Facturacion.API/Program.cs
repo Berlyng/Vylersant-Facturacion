@@ -69,6 +69,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/openapi/v1.json", "Vylersant Facturacion API v1");
+        
     });
 }
 
