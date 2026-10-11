@@ -5,6 +5,7 @@ using System.Text;
 using Vylersant_Facturacion.Application.Abstraccion;
 using Vylersant_Facturacion.Domain.Authentication;
 using Vylersant_Facturacion.Domain.Entities.Businesses;
+using Vylersant_Facturacion.Domain.Entities.Customers;
 using Vylersant_Facturacion.Domain.Entities.Products;
 using Vylersant_Facturacion.Domain.Entities.Users;
 
@@ -23,6 +24,7 @@ namespace Vylersant_Facturacion.Infrastructure.Persistence
         public DbSet<User> Users => Set<User>();
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
         public DbSet<Product> Products => Set<Product>();
+        public DbSet<Customer> Customers => Set<Customer>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

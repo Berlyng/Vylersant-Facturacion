@@ -86,6 +86,42 @@ namespace Vylersant_Facturacion.Infrastructure.Persistence.Migrations
                     b.ToTable("Businesses", (string)null);
                 });
 
+            modelBuilder.Entity("Vylersant_Facturacion.Domain.Entities.Customers.Customer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId");
+
+                    b.ToTable("Customers", (string)null);
+                });
+
             modelBuilder.Entity("Vylersant_Facturacion.Domain.Entities.Products.Product", b =>
                 {
                     b.Property<Guid>("Id")
@@ -167,6 +203,15 @@ namespace Vylersant_Facturacion.Infrastructure.Persistence.Migrations
                     b.HasOne("Vylersant_Facturacion.Domain.Entities.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Vylersant_Facturacion.Domain.Entities.Customers.Customer", b =>
+                {
+                    b.HasOne("Vylersant_Facturacion.Domain.Entities.Businesses.Business", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
