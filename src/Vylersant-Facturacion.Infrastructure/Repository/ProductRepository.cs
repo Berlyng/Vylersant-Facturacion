@@ -26,7 +26,7 @@ namespace Vylersant_Facturacion.Infrastructure.Repository
 
         public async Task<Product?> GetByIdAsync(Guid productId, Guid businessId, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == productId && p.BusinessId == businessId, cancellationToken);
         }
     }
 }
