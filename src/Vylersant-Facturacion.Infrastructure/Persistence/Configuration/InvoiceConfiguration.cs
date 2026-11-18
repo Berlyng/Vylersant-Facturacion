@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Vylersant_Facturacion.Domain.Entities.Businesses;
 using Vylersant_Facturacion.Domain.Entities.Customers;
 using Vylersant_Facturacion.Domain.Entities.Invoices;
+using Vylersant_Facturacion.Domain.Entities.Users;
 
 namespace Vylersant_Facturacion.Infrastructure.Persistence.Configurations;
 
@@ -19,6 +20,9 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
 
         builder.Property(x => x.BusinessId)
             .IsRequired();
+
+        builder.Property(x => x.IssuedByUserId)
+            .IsRequired(false);
 
         builder.Property(x => x.CustomerId)
             .IsRequired(false);
@@ -56,6 +60,11 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
             .HasForeignKey(x => x.CustomerId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(x => x.IssuedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // Relación con las líneas de detalle (1 a N)
         builder.HasMany(x => x.Lines)
             .WithOne()
@@ -63,3 +72,4 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
             .OnDelete(DeleteBehavior.Restrict); // Las líneas sí se eliminan si se elimina la factura
     }
 }
+

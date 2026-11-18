@@ -1,4 +1,4 @@
-﻿namespace Vylersant_Facturacion.Domain.Entities.Invoices;
+namespace Vylersant_Facturacion.Domain.Entities.Invoices;
 
 public sealed class InvoiceLine
 {
@@ -58,6 +58,6 @@ public sealed class InvoiceLine
         ProductName = productName.Trim();
         Quantity = quantity;
         UnitPrice = unitPrice;
-        LineTotal = quantity * unitPrice;
+        LineTotal = decimal.Round(quantity * unitPrice, 2, MidpointRounding.AwayFromZero);
     }
 }

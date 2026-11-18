@@ -1,4 +1,4 @@
-﻿namespace Vylersant_Facturacion.Domain.Entities.Invoices;
+namespace Vylersant_Facturacion.Domain.Entities.Invoices;
 
 public sealed class Invoice
 {
@@ -7,6 +7,8 @@ public sealed class Invoice
     public Guid Id { get; private set; }
 
     public Guid BusinessId { get; private set; }
+
+    public Guid? IssuedByUserId { get; private set; }
 
     public Guid? CustomerId { get; private set; }
 
@@ -29,6 +31,7 @@ public sealed class Invoice
 
     public Invoice(
         Guid businessId,
+        Guid issuedByUserId,
         Guid? customerId,
         long number,
         DateTime issuedAtUtc,
@@ -39,6 +42,11 @@ public sealed class Invoice
             throw new ArgumentException(
                 "El identificador del negocio es obligatorio.",
                 nameof(businessId));
+        }
+
+        if (issuedByUserId == Guid.Empty)
+        {
+            throw new ArgumentException("El identificador del usuario emisor es obligatorio.", nameof(issuedByUserId));
         }
 
         if (customerId == Guid.Empty)
@@ -68,6 +76,7 @@ public sealed class Invoice
 
         Id = Guid.NewGuid();
         BusinessId = businessId;
+        IssuedByUserId = issuedByUserId;
         CustomerId = customerId;
         Number = number;
         IssuedAtUtc = issuedAtUtc;
@@ -90,3 +99,4 @@ public sealed class Invoice
         CancelledAtUtc = cancelledAtUtc;
     }
 }
+

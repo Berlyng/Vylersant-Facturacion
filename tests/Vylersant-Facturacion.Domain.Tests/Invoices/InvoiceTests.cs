@@ -1,4 +1,4 @@
-﻿using Vylersant_Facturacion.Domain.Entities.Invoices;
+using Vylersant_Facturacion.Domain.Entities.Invoices;
 
 namespace Vylersant_Facturacion.Domain.Tests.Invoices;
 
@@ -9,6 +9,7 @@ public class InvoiceTests
     {
         // Arrange
         var businessId = Guid.NewGuid();
+        var issuedByUserId = Guid.NewGuid();
         var customerId = Guid.NewGuid();
 
         var lines = new[]
@@ -31,6 +32,7 @@ public class InvoiceTests
         // Act
         var invoice = new Invoice(
             businessId,
+            issuedByUserId,
             customerId,
             1,
             issuedAtUtc,
@@ -44,6 +46,8 @@ public class InvoiceTests
         Assert.Equal(
             businessId,
             invoice.BusinessId);
+
+        Assert.Equal(issuedByUserId, invoice.IssuedByUserId);
 
         Assert.Equal(
             customerId,
@@ -71,6 +75,7 @@ public class InvoiceTests
     {
         var invoice = new Invoice(
             Guid.NewGuid(),
+            Guid.NewGuid(),
             null,
             1,
             DateTime.UtcNow,
@@ -91,6 +96,7 @@ public class InvoiceTests
         var action = () =>
             new Invoice(
                 Guid.Empty,
+                Guid.NewGuid(),
                 null,
                 1,
                 DateTime.UtcNow,
@@ -112,7 +118,8 @@ public class InvoiceTests
         var action = () =>
             new Invoice(
                 Guid.NewGuid(),
-                Guid.Empty,
+                Guid.NewGuid(),
+            Guid.Empty,
                 1,
                 DateTime.UtcNow,
                 [
@@ -133,7 +140,8 @@ public class InvoiceTests
         var action = () =>
             new Invoice(
                 Guid.NewGuid(),
-                null,
+                Guid.NewGuid(),
+            null,
                 0,
                 DateTime.UtcNow,
                 [
@@ -154,7 +162,8 @@ public class InvoiceTests
         var action = () =>
             new Invoice(
                 Guid.NewGuid(),
-                null,
+                Guid.NewGuid(),
+            null,
                 1,
                 DateTime.UtcNow,
                 []);
@@ -188,6 +197,7 @@ public class InvoiceTests
     private static Invoice CreateInvoice()
     {
         return new Invoice(
+            Guid.NewGuid(),
             Guid.NewGuid(),
             null,
             1,

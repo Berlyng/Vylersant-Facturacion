@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Data;
 using Vylersant_Facturacion.Application.Abstraccion;
 using Vylersant_Facturacion.Domain.Authentication;
 using Vylersant_Facturacion.Domain.Entities.Businesses;
@@ -29,6 +30,18 @@ namespace Vylersant_Facturacion.Infrastructure.Persistence
         public DbSet<InvoiceLine> InvoiceLines => Set<InvoiceLine>();
         public DbSet<Invoice> Invoices => Set<Invoice>();
 
+        public async Task<TResult> ExecuteInTransactionAsync<TResult>(
+            Func<CancellationToken, Task<TResult>> operation,
+            IsolationLevel isolationLevel,
+            CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(operation);
+            await using var transaction = await Database.BeginTransactionAsync(isolationLevel, cancellationToken);
+            var result = await operation(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+            return result;
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -38,3 +51,4 @@ namespace Vylersant_Facturacion.Infrastructure.Persistence
         }
     }
 }
+

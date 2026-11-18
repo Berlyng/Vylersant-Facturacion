@@ -1,4 +1,4 @@
-﻿using Vylersant_Facturacion.Domain.Entities.Invoices;
+using Vylersant_Facturacion.Domain.Entities.Invoices;
 
 namespace Vylersant_Facturacion.Domain.Tests.Invoices;
 
@@ -16,6 +16,14 @@ public class InvoiceLineTests
         Assert.Equal(
             250m,
             line.LineTotal);
+    }
+
+    [Fact]
+    public void Constructor_ShouldRoundLineTotalToCurrencyPrecision()
+    {
+        var line = new InvoiceLine(Guid.NewGuid(), "Producto", 1m, 1.005m);
+
+        Assert.Equal(1.01m, line.LineTotal);
     }
 
     [Fact]
@@ -99,3 +107,4 @@ public class InvoiceLineTests
             action);
     }
 }
+

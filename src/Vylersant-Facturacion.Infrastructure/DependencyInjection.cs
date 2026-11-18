@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vylersant_Facturacion.Application.Abstraccion;
 using Vylersant_Facturacion.Application.Authentication;
 using Vylersant_Facturacion.Application.Bussinesses;
 using Vylersant_Facturacion.Application.Customers;
+using Vylersant_Facturacion.Application.Invoices;
 using Vylersant_Facturacion.Application.Products;
 using Vylersant_Facturacion.Application.Security;
 using Vylersant_Facturacion.Application.Users;
@@ -51,8 +52,10 @@ namespace Vylersant_Facturacion.Infrastructure
 
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 
             return services;
         }
     }
 }
+
