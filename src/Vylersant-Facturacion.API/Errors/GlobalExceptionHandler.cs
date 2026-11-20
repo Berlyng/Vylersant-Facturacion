@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Diagnostics;
 using Vylersant_Facturacion.Application.Authentication;
 using Vylersant_Facturacion.Application.Customers;
+using Vylersant_Facturacion.Application.Invoices;
 using Vylersant_Facturacion.Application.Products;
 using Vylersant_Facturacion.Application.Registration;
 
@@ -26,6 +27,7 @@ namespace Vylersant_Facturacion.API.Errors
                 InvalidRefreshTokenException =>(StatusCodes.Status401Unauthorized,"Sesión inválida","El refresh token no es válido o ha expirado."),
                 ProductNotFoundException =>(StatusCodes.Status404NotFound,"Producto no encontrado","El producto solicitado no fue encontrado."),
                 CustomerNotFoundException =>(StatusCodes.Status404NotFound,"Cliente no encontrado","El cliente solicitado no fue encontrado."),
+                InvoiceNotFoundException =>(StatusCodes.Status404NotFound,"Factura no encontrada","La factura solicitada no fue encontrada."),
                 _ => (StatusCodes.Status500InternalServerError, "Error interno del servidor", "Ocurrió un error inesperado. Por favor, inténtelo de nuevo más tarde.")
 
 
@@ -50,3 +52,4 @@ namespace Vylersant_Facturacion.API.Errors
 
     }
 }
+

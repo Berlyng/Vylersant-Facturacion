@@ -16,10 +16,75 @@ namespace Vylersant_Facturacion.Api.Controllers;
 public sealed class InvoicesController : ControllerBase
 {
     private readonly CreateInvoiceService _createInvoiceService;
+    private readonly GetInvoicesService _getInvoicesService;
+    private readonly GetInvoiceByIdService _getInvoiceByIdService;
 
-    public InvoicesController(CreateInvoiceService createInvoiceService)
+    public InvoicesController(
+        CreateInvoiceService createInvoiceService,
+        GetInvoicesService getInvoicesService,
+        GetInvoiceByIdService getInvoiceByIdService)
     {
         _createInvoiceService = createInvoiceService;
+        _getInvoicesService = getInvoicesService;
+        _getInvoiceByIdService = getInvoiceByIdService;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<InvoicePageResponse>> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        if (!Guid.TryParse(User.FindFirst(TokenClaimNames.BusinessId)?.Value, out var businessId))
+        {
+            return Unauthorized();
+        }
+
+        var result = await _getInvoicesService.ExecuteAsync(
+            businessId,
+            page,
+            pageSize,
+            cancellationToken);
+
+        return Ok(new InvoicePageResponse(
+            result.Items.Select(invoice => new InvoiceListItemResponse(
+                invoice.Id,
+                invoice.Number,
+                invoice.IssuedAtUtc,
+                invoice.Status.ToString(),
+                invoice.CustomerId,
+                invoice.Total)).ToList(),
+            result.Page,
+            result.PageSize,
+            result.TotalCount));
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<InvoiceDetailsResponse>> GetById(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(User.FindFirst(TokenClaimNames.BusinessId)?.Value, out var businessId))
+        {
+            return Unauthorized();
+        }
+
+        var invoice = await _getInvoiceByIdService.ExecuteAsync(id, businessId, cancellationToken);
+        return Ok(new InvoiceDetailsResponse(
+            invoice.Id,
+            invoice.Number,
+            invoice.IssuedAtUtc,
+            invoice.Status.ToString(),
+            invoice.CustomerId,
+            invoice.CustomerName,
+            invoice.Total,
+            invoice.CancelledAtUtc,
+            invoice.Lines.Select(line => new InvoiceLineResponse(
+                line.ProductId,
+                line.ProductName,
+                line.Quantity,
+                line.UnitPrice,
+                line.LineTotal)).ToList()));
     }
 
     [HttpPost]

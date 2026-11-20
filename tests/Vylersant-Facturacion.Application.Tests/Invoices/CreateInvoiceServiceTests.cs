@@ -52,6 +52,8 @@ public sealed class CreateInvoiceServiceTests
         public Task<Invoice?> GetByIdAsync(Guid id, Guid businessId, CancellationToken token = default) => Task.FromResult<Invoice?>(null);
         public Task<IReadOnlyList<Invoice>> GetAllAsync(Guid businessId, CancellationToken token = default) => Task.FromResult<IReadOnlyList<Invoice>>([]);
         public Task<long> GetNextNumberAsync(Guid businessId, CancellationToken token = default) => Task.FromResult(1L);
+        public Task<IReadOnlyList<Invoice>> GetPageAsync(Guid businessId, int skip, int take, CancellationToken token = default) => Task.FromResult<IReadOnlyList<Invoice>>([]);
+        public Task<long> GetCountAsync(Guid businessId, CancellationToken token = default) => Task.FromResult(0L);
         public Task AddAsync(Invoice invoice, CancellationToken token = default) { Invoice = invoice; return Task.CompletedTask; }
     }
 

@@ -49,6 +49,30 @@ public sealed class InvoiceRepository : IInvoiceRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Invoice>> GetPageAsync(
+        Guid businessId,
+        int skip,
+        int take,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Invoices
+            .AsNoTracking()
+            .Where(invoice => invoice.BusinessId == businessId)
+            .OrderByDescending(invoice => invoice.IssuedAtUtc)
+            .ThenByDescending(invoice => invoice.Number)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<long> GetCountAsync(
+        Guid businessId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Invoices
+            .LongCountAsync(invoice => invoice.BusinessId == businessId, cancellationToken);
+    }
+
     public async Task<long> GetNextNumberAsync(
         Guid businessId,
         CancellationToken cancellationToken = default)
@@ -63,3 +87,4 @@ public sealed class InvoiceRepository : IInvoiceRepository
         return (lastNumber ?? 0) + 1;
     }
 }
+

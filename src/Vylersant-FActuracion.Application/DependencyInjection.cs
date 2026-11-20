@@ -25,6 +25,8 @@ namespace Vylersant_Facturacion.Application
             services.AddScoped<UpdateCustomerService>();
             services.AddScoped<ChangeCustomerStatusService>();
             services.AddScoped<CreateInvoiceService>();
+            services.AddScoped<GetInvoicesService>();
+            services.AddScoped<GetInvoiceByIdService>();
             services.AddSingleton(TimeProvider.System);
             return services;
         }
