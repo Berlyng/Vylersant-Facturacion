@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Vylersant_Facturacion.Application.Abstraccion;
 using Vylersant_Facturacion.Application.Customers;
 using Vylersant_Facturacion.Application.Invoices;
 using Vylersant_Facturacion.Application.Security;
@@ -74,13 +75,49 @@ public sealed class InvoiceEndpointTests : IClassFixture<Vylersant_FacturacionAp
         Assert.Equal(10.50m, result.Total);
     }
 
+    [Fact]
+    public async Task Cancel_ShouldBeIdempotentAndPreserveInvoiceNumber()
+    {
+        var businessId = Guid.NewGuid();
+        var invoice = CreateInvoice(businessId, 23);
+        using var factory = CreateFactory([invoice], []);
+        using var client = CreateAuthenticatedClient(factory, CreateUser(businessId));
+        var route = $"/api/invoices/{invoice.Id}/cancel";
+
+        var first = await client.PatchAsync(route, content: null);
+        var cancelledAt = invoice.CancelledAtUtc;
+        var second = await client.PatchAsync(route, content: null);
+
+        Assert.Equal(HttpStatusCode.NoContent, first.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, second.StatusCode);
+        Assert.Equal(InvoiceStatus.Cancelled, invoice.Status);
+        Assert.Equal(23, invoice.Number);
+        Assert.NotNull(cancelledAt);
+        Assert.Equal(cancelledAt, invoice.CancelledAtUtc);
+    }
+
+    [Fact]
+    public async Task Cancel_ShouldReturnNotFound_WhenInvoiceBelongsToAnotherBusiness()
+    {
+        var invoice = CreateInvoice(Guid.NewGuid(), 24);
+        using var factory = CreateFactory([invoice], []);
+        using var client = CreateAuthenticatedClient(factory, CreateUser(Guid.NewGuid()));
+
+        var response = await client.PatchAsync($"/api/invoices/{invoice.Id}/cancel", content: null);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(InvoiceStatus.Issued, invoice.Status);
+    }
+
     private WebApplicationFactory<Program> CreateFactory(Invoice[] invoices, Customer[] customers) =>
         _factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
         {
             services.RemoveAll<IInvoiceRepository>();
             services.RemoveAll<ICustomerRepository>();
+            services.RemoveAll<IUnitOfWork>();
             services.AddSingleton<IInvoiceRepository>(new FakeInvoiceRepository(invoices));
             services.AddSingleton<ICustomerRepository>(new FakeCustomerRepository(customers));
+            services.AddSingleton<IUnitOfWork>(new FakeUnitOfWork());
         }));
 
     private static User CreateUser(Guid businessId) =>
@@ -121,6 +158,11 @@ public sealed class InvoiceEndpointTests : IClassFixture<Vylersant_FacturacionAp
         public Task<IReadOnlyList<Customer>> GetAllAsync(Guid businessId, CancellationToken token = default) =>
             Task.FromResult<IReadOnlyList<Customer>>(customers.Where(customer => customer.BusinessId == businessId).ToList());
         public Task AddAsync(Customer customer, CancellationToken token = default) => Task.CompletedTask;
+    }
+
+    private sealed class FakeUnitOfWork : IUnitOfWork
+    {
+        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => Task.FromResult(1);
     }
 }
 

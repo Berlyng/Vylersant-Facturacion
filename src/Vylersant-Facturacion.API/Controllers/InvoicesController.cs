@@ -18,15 +18,18 @@ public sealed class InvoicesController : ControllerBase
     private readonly CreateInvoiceService _createInvoiceService;
     private readonly GetInvoicesService _getInvoicesService;
     private readonly GetInvoiceByIdService _getInvoiceByIdService;
+    private readonly CancelInvoiceService _cancelInvoiceService;
 
     public InvoicesController(
         CreateInvoiceService createInvoiceService,
         GetInvoicesService getInvoicesService,
-        GetInvoiceByIdService getInvoiceByIdService)
+        GetInvoiceByIdService getInvoiceByIdService,
+        CancelInvoiceService cancelInvoiceService)
     {
         _createInvoiceService = createInvoiceService;
         _getInvoicesService = getInvoicesService;
         _getInvoiceByIdService = getInvoiceByIdService;
+        _cancelInvoiceService = cancelInvoiceService;
     }
 
     [HttpGet]
@@ -85,6 +88,20 @@ public sealed class InvoicesController : ControllerBase
                 line.Quantity,
                 line.UnitPrice,
                 line.LineTotal)).ToList()));
+    }
+
+    [HttpPatch("{id:guid}/cancel")]
+    public async Task<IActionResult> Cancel(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(User.FindFirst(TokenClaimNames.BusinessId)?.Value, out var businessId))
+        {
+            return Unauthorized();
+        }
+
+        await _cancelInvoiceService.ExecuteAsync(id, businessId, cancellationToken);
+        return NoContent();
     }
 
     [HttpPost]
