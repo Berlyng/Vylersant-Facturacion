@@ -3,6 +3,7 @@ using System.Windows;
 using Vylersant_Facturacion.Desktop.Authentication;
 using Vylersant_Facturacion.Desktop.PointOfSale;
 using Vylersant_Facturacion.Contracts.Products;
+using Vylersant_Facturacion.Contracts.Invoices;
 
 namespace Vylersant_Facturacion.Desktop;
 
@@ -10,15 +11,19 @@ public partial class MainWindow : Window
 {
     private readonly SessionService _sessionService;
     private readonly PosViewModel _posViewModel;
+    private readonly InvoiceHistoryViewModel _invoiceHistoryViewModel;
     private AuthenticatedSession? _currentSession;
 
-    public MainWindow(SessionService sessionService, ICatalogApiClient catalogApiClient)
+    public MainWindow(SessionService sessionService, ICatalogApiClient catalogApiClient, IInvoiceApiClient invoiceApiClient)
     {
         _sessionService = sessionService;
-        _posViewModel = new PosViewModel(catalogApiClient);
+        _posViewModel = new PosViewModel(catalogApiClient, invoiceApiClient);
+        _invoiceHistoryViewModel = new InvoiceHistoryViewModel(invoiceApiClient);
         InitializeComponent();
         LoginPanel.Visibility = Visibility.Visible;
         PosContent.DataContext = _posViewModel;
+        InvoicesContent.DataContext = _invoiceHistoryViewModel;
+        UpdateWindowStateButton();
     }
 
     public async Task RestoreSessionAsync()
@@ -89,12 +94,51 @@ public partial class MainWindow : Window
             ? "Tu espacio de trabajo está listo."
             : section == "POS"
                 ? "Busca productos y prepara el carrito de venta."
-                : $"La sección de {section.ToLowerInvariant()} estará disponible en un siguiente issue.";
+                : section == "Facturas"
+                    ? "Consulta las ventas y revisa el detalle guardado por el servidor."
+                    : $"La sección de {section.ToLowerInvariant()} estará disponible en un siguiente issue.";
         var showPos = section == "POS";
+        var showInvoices = section == "Facturas";
         PosContent.Visibility = showPos ? Visibility.Visible : Visibility.Collapsed;
-        HomeContent.Visibility = showPos ? Visibility.Collapsed : Visibility.Visible;
+        InvoicesContent.Visibility = showInvoices ? Visibility.Visible : Visibility.Collapsed;
+        HomeContent.Visibility = showPos || showInvoices ? Visibility.Collapsed : Visibility.Visible;
         if (showPos && _currentSession is not null)
             await _posViewModel.LoadAsync(_currentSession.Tokens.AccessToken);
+        else if (showInvoices && _currentSession is not null)
+            await _invoiceHistoryViewModel.LoadAsync(_currentSession.Tokens.AccessToken);
+    }
+
+    private async void ConfirmSale_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentSession is null)
+            return;
+        await _posViewModel.ConfirmSaleAsync(_currentSession.Tokens.AccessToken);
+    }
+
+    private async void InvoiceItem_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentSession is null || sender is not FrameworkElement { Tag: InvoiceListItemResponse invoice })
+            return;
+        await _invoiceHistoryViewModel.LoadDetailsAsync(invoice, _currentSession.Tokens.AccessToken);
+    }
+
+    private void MinimizeWindow_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+
+    private void ToggleWindowState_Click(object sender, RoutedEventArgs e) =>
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+
+    private void CloseWindow_Click(object sender, RoutedEventArgs e) => Close();
+
+    private void Window_StateChanged(object? sender, EventArgs e) => UpdateWindowStateButton();
+
+    private void UpdateWindowStateButton()
+    {
+        if (WindowStateIcon is null || WindowStateButton is null)
+            return;
+        var maximized = WindowState == WindowState.Maximized;
+        WindowStateIcon.Text = maximized ? "\uE923" : "\uE922";
+        WindowStateButton.ToolTip = maximized ? "Restaurar" : "Maximizar";
+        System.Windows.Automation.AutomationProperties.SetName(WindowStateButton, maximized ? "Restaurar" : "Maximizar");
     }
 
     private void ProductSearch_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) =>
@@ -128,6 +172,7 @@ public partial class MainWindow : Window
     {
         _currentSession = session;
         PosContent.Visibility = Visibility.Collapsed;
+        InvoicesContent.Visibility = Visibility.Collapsed;
         HomeContent.Visibility = Visibility.Visible;
         PageTitleText.Text = "Inicio";
         PageDescriptionText.Text = "Tu espacio de trabajo está listo.";
