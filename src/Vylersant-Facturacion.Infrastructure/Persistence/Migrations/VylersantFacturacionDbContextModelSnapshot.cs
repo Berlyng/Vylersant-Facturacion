@@ -143,12 +143,14 @@ namespace Vylersant_Facturacion.Infrastructure.Persistence.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<long>("Number")
+                        .HasMaxLength(18)
                         .HasColumnType("bigint");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<decimal>("Total")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
@@ -183,6 +185,7 @@ namespace Vylersant_Facturacion.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(150)");
 
                     b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("UnitPrice")
@@ -231,6 +234,22 @@ namespace Vylersant_Facturacion.Infrastructure.Persistence.Migrations
                     b.HasIndex("BusinessId");
 
                     b.ToTable("Products", (string)null);
+                });
+
+            modelBuilder.Entity("Vylersant_Facturacion.Domain.Entities.Payments.Payment", b =>
+                {
+                    b.Property<Guid>("Id").ValueGeneratedNever().HasColumnType("uniqueidentifier");
+                    b.Property<decimal>("Amount").HasPrecision(18, 2).HasColumnType("decimal(18,2)");
+                    b.Property<Guid>("BusinessId").HasColumnType("uniqueidentifier");
+                    b.Property<Guid>("InvoiceId").HasColumnType("uniqueidentifier");
+                    b.Property<int>("Method").HasColumnType("int");
+                    b.Property<DateTime>("PaidAtUtc").HasColumnType("datetime2");
+                    b.Property<string>("Reference").HasMaxLength(200).HasColumnType("nvarchar(200)");
+                    b.Property<int>("Status").HasColumnType("int");
+                    b.Property<DateTime?>("VoidedAtUtc").HasColumnType("datetime2");
+                    b.HasKey("Id");
+                    b.HasIndex("BusinessId", "InvoiceId", "Status");
+                    b.ToTable("Payments", (string)null);
                 });
 
             modelBuilder.Entity("Vylersant_Facturacion.Domain.Entities.Users.User", b =>
@@ -310,12 +329,18 @@ namespace Vylersant_Facturacion.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
+            modelBuilder.Entity("Vylersant_Facturacion.Domain.Entities.Payments.Payment", b =>
+                {
+                    b.HasOne("Vylersant_Facturacion.Domain.Entities.Businesses.Business", null).WithMany().HasForeignKey("BusinessId").OnDelete(DeleteBehavior.Restrict).IsRequired();
+                    b.HasOne("Vylersant_Facturacion.Domain.Entities.Invoices.Invoice", null).WithMany().HasForeignKey("InvoiceId").OnDelete(DeleteBehavior.Restrict).IsRequired();
+                });
+
             modelBuilder.Entity("Vylersant_Facturacion.Domain.Entities.Invoices.InvoiceLine", b =>
                 {
                     b.HasOne("Vylersant_Facturacion.Domain.Entities.Invoices.Invoice", null)
                         .WithMany("Lines")
                         .HasForeignKey("InvoiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Vylersant_Facturacion.Domain.Entities.Products.Product", null)
