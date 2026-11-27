@@ -3,6 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using Vylersant_Facturacion.Application.Invoices;
 using Vylersant_Facturacion.Application.Security;
 using Vylersant_Facturacion.Contracts.Invoices;
+using Vylersant_Facturacion.Application.Payments;
+using Vylersant_Facturacion.Contracts.Payments;
+using Vylersant_Facturacion.Domain.Entities.Payments;
+using RecordPaymentContractRequest = Vylersant_Facturacion.Contracts.Payments.RecordPaymentRequest;
+using RecordPaymentApplicationRequest = Vylersant_Facturacion.Application.Payments.RecordPaymentRequest;
 
 using CreateInvoiceApplicationRequest = Vylersant_Facturacion.Application.Invoices.CreateInvoiceRequest;
 using CreateInvoiceLineApplicationRequest = Vylersant_Facturacion.Application.Invoices.CreateInvoiceLineRequest;
@@ -19,17 +24,20 @@ public sealed class InvoicesController : ControllerBase
     private readonly GetInvoicesService _getInvoicesService;
     private readonly GetInvoiceByIdService _getInvoiceByIdService;
     private readonly CancelInvoiceService _cancelInvoiceService;
+    private readonly RecordPaymentService _recordPaymentService;
 
     public InvoicesController(
         CreateInvoiceService createInvoiceService,
         GetInvoicesService getInvoicesService,
         GetInvoiceByIdService getInvoiceByIdService,
-        CancelInvoiceService cancelInvoiceService)
+        CancelInvoiceService cancelInvoiceService,
+        RecordPaymentService recordPaymentService)
     {
         _createInvoiceService = createInvoiceService;
         _getInvoicesService = getInvoicesService;
         _getInvoiceByIdService = getInvoiceByIdService;
         _cancelInvoiceService = cancelInvoiceService;
+        _recordPaymentService = recordPaymentService;
     }
 
     [HttpGet]
@@ -134,6 +142,26 @@ public sealed class InvoicesController : ControllerBase
 
         var response = new CreateInvoiceResponse(result.InvoiceId, result.Number, result.Total);
         return StatusCode(StatusCodes.Status201Created, response);
+    }
+
+    [HttpPost("{id:guid}/payments")]
+    public async Task<ActionResult<PaymentResponse>> RecordPayment(
+        Guid id,
+        RecordPaymentContractRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(User.FindFirst(TokenClaimNames.BusinessId)?.Value, out var businessId))
+            return Unauthorized();
+        if (!Enum.TryParse<PaymentMethod>(request.Method, ignoreCase: true, out var method) || !Enum.IsDefined(method))
+            return BadRequest("El método de pago no es válido.");
+
+        var result = await _recordPaymentService.ExecuteAsync(
+            id, businessId,
+            new RecordPaymentApplicationRequest(request.Amount, method, request.Reference),
+            cancellationToken);
+        return StatusCode(StatusCodes.Status201Created, new PaymentResponse(
+            result.Id, result.Amount, result.PaidAtUtc, result.Method.ToString(), result.Reference,
+            result.PaidTotal, result.Balance, result.IsPaid));
     }
 }
 
