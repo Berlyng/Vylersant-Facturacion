@@ -9,11 +9,15 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Vylersant_Facturacion.Application.Abstraccion;
 using Vylersant_Facturacion.Application.Customers;
 using Vylersant_Facturacion.Application.Invoices;
+using Vylersant_Facturacion.Application.Payments;
 using Vylersant_Facturacion.Application.Security;
 using Vylersant_Facturacion.Contracts.Invoices;
 using Vylersant_Facturacion.Domain.Entities.Customers;
 using Vylersant_Facturacion.Domain.Entities.Invoices;
 using Vylersant_Facturacion.Domain.Entities.Users;
+using Vylersant_Facturacion.Domain.Entities.Payments;
+using PaymentRequest = Vylersant_Facturacion.Contracts.Payments.RecordPaymentRequest;
+using Vylersant_Facturacion.Contracts.Payments;
 
 namespace Vylersant_Facturacion.IntegrationTests.Invoices;
 
@@ -109,14 +113,47 @@ public sealed class InvoiceEndpointTests : IClassFixture<Vylersant_FacturacionAp
         Assert.Equal(InvoiceStatus.Issued, invoice.Status);
     }
 
-    private WebApplicationFactory<Program> CreateFactory(Invoice[] invoices, Customer[] customers) =>
+    [Fact]
+    public async Task RecordPayment_ShouldReturnDerivedBalanceAndPaidState()
+    {
+        var businessId = Guid.NewGuid();
+        var invoice = CreateInvoice(businessId, 1);
+        var payments = new FakePaymentRepository();
+        using var factory = CreateFactory([invoice], [], payments);
+        using var client = CreateAuthenticatedClient(factory, CreateUser(businessId));
+
+        var response = await client.PostAsJsonAsync($"/api/invoices/{invoice.Id}/payments", new PaymentRequest(10m, "Cash"));
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<PaymentResponse>();
+        Assert.NotNull(result);
+        Assert.Equal(10m, result.PaidTotal);
+        Assert.Equal(0m, result.Balance);
+        Assert.True(result.IsPaid);
+    }
+
+    [Fact]
+    public async Task RecordPayment_ShouldNotRevealInvoiceFromAnotherBusiness()
+    {
+        var invoice = CreateInvoice(Guid.NewGuid(), 1);
+        using var factory = CreateFactory([invoice], [], new FakePaymentRepository());
+        using var client = CreateAuthenticatedClient(factory, CreateUser(Guid.NewGuid()));
+
+        var response = await client.PostAsJsonAsync($"/api/invoices/{invoice.Id}/payments", new PaymentRequest(1m, "Cash"));
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    private WebApplicationFactory<Program> CreateFactory(Invoice[] invoices, Customer[] customers, FakePaymentRepository? payments = null) =>
         _factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
         {
             services.RemoveAll<IInvoiceRepository>();
             services.RemoveAll<ICustomerRepository>();
+            services.RemoveAll<IPaymentRepository>();
             services.RemoveAll<IUnitOfWork>();
             services.AddSingleton<IInvoiceRepository>(new FakeInvoiceRepository(invoices));
             services.AddSingleton<ICustomerRepository>(new FakeCustomerRepository(customers));
+            services.AddSingleton<IPaymentRepository>(payments ?? new FakePaymentRepository());
             services.AddSingleton<IUnitOfWork>(new FakeUnitOfWork());
         }));
 
@@ -163,6 +200,18 @@ public sealed class InvoiceEndpointTests : IClassFixture<Vylersant_FacturacionAp
     private sealed class FakeUnitOfWork : IUnitOfWork
     {
         public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => Task.FromResult(1);
+    }
+
+    private sealed class FakePaymentRepository : IPaymentRepository
+    {
+        private readonly List<Payment> _payments = [];
+        public Task AddAsync(Payment payment, CancellationToken cancellationToken = default)
+        {
+            _payments.Add(payment);
+            return Task.CompletedTask;
+        }
+        public Task<decimal> GetCompletedTotalAsync(Guid invoiceId, Guid businessId, CancellationToken cancellationToken = default) =>
+            Task.FromResult(_payments.Where(payment => payment.InvoiceId == invoiceId && payment.BusinessId == businessId && payment.Status == PaymentStatus.Completed).Sum(payment => payment.Amount));
     }
 }
 
