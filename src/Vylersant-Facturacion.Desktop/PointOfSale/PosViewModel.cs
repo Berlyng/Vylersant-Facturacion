@@ -4,16 +4,20 @@ using System.Net.Http;
 using System.Runtime.CompilerServices;
 using Vylersant_Facturacion.Contracts.Customers;
 using Vylersant_Facturacion.Contracts.Products;
+using Vylersant_Facturacion.Contracts.Invoices;
 
 namespace Vylersant_Facturacion.Desktop.PointOfSale;
 
-public sealed class PosViewModel(ICatalogApiClient catalogClient) : INotifyPropertyChanged
+public sealed class PosViewModel(ICatalogApiClient catalogClient, IInvoiceApiClient invoiceApiClient) : INotifyPropertyChanged
 {
     private readonly List<ProductResponse> _allProducts = [];
     private string _searchText = string.Empty;
     private bool _isLoading;
     private string? _errorMessage;
     private CustomerResponse? _selectedCustomer;
+    private bool _isSubmitting;
+    private string? _saleErrorMessage;
+    private CreateInvoiceResponse? _lastCreatedInvoice;
 
     public ObservableCollection<ProductResponse> Products { get; } = [];
     public ObservableCollection<CustomerResponse> Customers { get; } = [];
@@ -52,6 +56,23 @@ public sealed class PosViewModel(ICatalogApiClient catalogClient) : INotifyPrope
 
     public decimal Subtotal => decimal.Round(Cart.Sum(line => line.LineTotal), 2, MidpointRounding.AwayFromZero);
     public bool HasNoProducts => !IsLoading && string.IsNullOrWhiteSpace(ErrorMessage) && Products.Count == 0;
+    public bool IsSubmitting
+    {
+        get => _isSubmitting;
+        private set { _isSubmitting = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanSubmit)); }
+    }
+    public bool CanSubmit => HasCartItems && !IsSubmitting;
+    public string? SaleErrorMessage
+    {
+        get => _saleErrorMessage;
+        private set { _saleErrorMessage = value; OnPropertyChanged(); }
+    }
+    public CreateInvoiceResponse? LastCreatedInvoice
+    {
+        get => _lastCreatedInvoice;
+        private set { _lastCreatedInvoice = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasCreatedInvoice)); }
+    }
+    public bool HasCreatedInvoice => LastCreatedInvoice is not null;
 
     public async Task LoadAsync(string accessToken, CancellationToken cancellationToken = default)
     {
@@ -133,7 +154,45 @@ public sealed class PosViewModel(ICatalogApiClient catalogClient) : INotifyPrope
         Products.Clear();
         _allProducts.Clear();
         SelectedCustomer = null;
+        SaleErrorMessage = null;
+        LastCreatedInvoice = null;
         OnCartChanged();
+    }
+
+    public async Task ConfirmSaleAsync(string accessToken, CancellationToken cancellationToken = default)
+    {
+        if (!CanSubmit)
+            return;
+
+        IsSubmitting = true;
+        SaleErrorMessage = null;
+        LastCreatedInvoice = null;
+        try
+        {
+            var request = new CreateInvoiceRequest(
+                SelectedCustomer?.Id,
+                Cart.Select(line => new CreateInvoiceLineRequest(line.ProductId, line.Quantity)).ToList());
+            var created = await invoiceApiClient.CreateAsync(request, accessToken, cancellationToken);
+            LastCreatedInvoice = created;
+            Cart.Clear();
+            OnCartChanged();
+        }
+        catch (InvoiceApiException exception)
+        {
+            SaleErrorMessage = exception.Message;
+        }
+        catch (HttpRequestException)
+        {
+            SaleErrorMessage = "No se pudo conectar con el servidor. La venta sigue en el carrito.";
+        }
+        catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            SaleErrorMessage = "El servidor tardó demasiado en responder. La venta sigue en el carrito.";
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
     }
 
     private void ApplyProductFilter()
@@ -157,6 +216,7 @@ public sealed class PosViewModel(ICatalogApiClient catalogClient) : INotifyPrope
     {
         OnPropertyChanged(nameof(Subtotal));
         OnPropertyChanged(nameof(HasCartItems));
+        OnPropertyChanged(nameof(CanSubmit));
     }
 
     public bool HasCartItems => Cart.Count > 0;
