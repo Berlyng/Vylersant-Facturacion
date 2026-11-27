@@ -15,7 +15,8 @@ public partial class App : Application
         var authenticationClient = new AuthenticationApiClient(httpClient);
         var session = new SessionService(authenticationClient, new DpapiTokenStore(), TimeProvider.System);
         var catalogClient = new CatalogApiClient(httpClient);
-        var window = new MainWindow(session, catalogClient);
+        var invoiceClient = new InvoiceApiClient(httpClient);
+        var window = new MainWindow(session, catalogClient, invoiceClient);
         MainWindow = window;
         window.Show();
         await window.RestoreSessionAsync();
