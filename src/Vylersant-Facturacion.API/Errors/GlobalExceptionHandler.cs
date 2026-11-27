@@ -4,6 +4,7 @@ using Vylersant_Facturacion.Application.Customers;
 using Vylersant_Facturacion.Application.Invoices;
 using Vylersant_Facturacion.Application.Products;
 using Vylersant_Facturacion.Application.Registration;
+using Vylersant_Facturacion.Application.Payments;
 
 namespace Vylersant_Facturacion.API.Errors
 {
@@ -28,6 +29,7 @@ namespace Vylersant_Facturacion.API.Errors
                 ProductNotFoundException =>(StatusCodes.Status404NotFound,"Producto no encontrado","El producto solicitado no fue encontrado."),
                 CustomerNotFoundException =>(StatusCodes.Status404NotFound,"Cliente no encontrado","El cliente solicitado no fue encontrado."),
                 InvoiceNotFoundException =>(StatusCodes.Status404NotFound,"Factura no encontrada","La factura solicitada no fue encontrada."),
+                InvoicePaymentException => (StatusCodes.Status400BadRequest, "Pago inválido", exception.Message),
                 _ => (StatusCodes.Status500InternalServerError, "Error interno del servidor", "Ocurrió un error inesperado. Por favor, inténtelo de nuevo más tarde.")
 
 
