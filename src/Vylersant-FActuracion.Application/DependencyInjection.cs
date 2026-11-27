@@ -3,6 +3,7 @@ using Vylersant_Facturacion.Application.Authentication;
 using Vylersant_Facturacion.Application.Customers;
 using Vylersant_Facturacion.Application.Invoices;
 using Vylersant_Facturacion.Application.Products;
+using Vylersant_Facturacion.Application.Payments;
 using Vylersant_Facturacion.Application.Registration;
 
 namespace Vylersant_Facturacion.Application
@@ -28,6 +29,7 @@ namespace Vylersant_Facturacion.Application
             services.AddScoped<GetInvoicesService>();
             services.AddScoped<GetInvoiceByIdService>();
             services.AddScoped<CancelInvoiceService>();
+            services.AddScoped<RecordPaymentService>();
             services.AddSingleton(TimeProvider.System);
             return services;
         }
