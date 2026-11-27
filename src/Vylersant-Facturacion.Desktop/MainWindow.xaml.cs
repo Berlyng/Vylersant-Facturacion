@@ -136,7 +136,7 @@ public partial class MainWindow : Window
         if (WindowStateIcon is null || WindowStateButton is null)
             return;
         var maximized = WindowState == WindowState.Maximized;
-        WindowStateIcon.Text = maximized ? "\uE923" : "\uE922";
+        WindowStateIcon.Text = maximized ? "❐" : "□";
         WindowStateButton.ToolTip = maximized ? "Restaurar" : "Maximizar";
         System.Windows.Automation.AutomationProperties.SetName(WindowStateButton, maximized ? "Restaurar" : "Maximizar");
     }
