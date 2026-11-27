@@ -247,6 +247,7 @@ namespace Vylersant_Facturacion.Infrastructure.Persistence.Migrations
                     b.Property<string>("Reference").HasMaxLength(200).HasColumnType("nvarchar(200)");
                     b.Property<int>("Status").HasColumnType("int");
                     b.Property<DateTime?>("VoidedAtUtc").HasColumnType("datetime2");
+                    b.Property<string>("VoidReason").HasMaxLength(500).HasColumnType("nvarchar(500)");
                     b.HasKey("Id");
                     b.HasIndex("BusinessId", "InvoiceId", "Status");
                     b.ToTable("Payments", (string)null);
