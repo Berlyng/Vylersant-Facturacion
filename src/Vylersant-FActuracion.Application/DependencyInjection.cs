@@ -34,6 +34,7 @@ namespace Vylersant_Facturacion.Application
             services.AddScoped<VoidPaymentService>();
             services.AddScoped<GetInvoicePaymentsService>();
             services.AddScoped<PrintInvoiceReceiptService>();
+            services.AddScoped<IReceiptPrinter, UnavailableReceiptPrinter>();
             services.AddSingleton(TimeProvider.System);
             return services;
         }
