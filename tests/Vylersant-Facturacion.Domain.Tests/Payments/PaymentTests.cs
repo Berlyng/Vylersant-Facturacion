@@ -87,13 +87,14 @@ public sealed class PaymentTests
         var payment = CreatePayment();
         var voidedAtUtc = DateTime.UtcNow;
 
-        payment.Void(voidedAtUtc);
-        payment.Void(voidedAtUtc.AddMinutes(1));
+        payment.Void(voidedAtUtc, "Pago duplicado");
+        payment.Void(voidedAtUtc.AddMinutes(1), "Otro motivo");
 
         Assert.Equal(PaymentStatus.Voided, payment.Status);
         Assert.Equal(voidedAtUtc, payment.VoidedAtUtc);
         Assert.Equal(10m, payment.Amount);
         Assert.Equal("Pago", payment.Reference);
+        Assert.Equal("Pago duplicado", payment.VoidReason);
     }
 
     private static Payment CreatePayment(string? reference = "Pago") =>
