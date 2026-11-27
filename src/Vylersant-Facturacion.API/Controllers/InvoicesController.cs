@@ -25,19 +25,25 @@ public sealed class InvoicesController : ControllerBase
     private readonly GetInvoiceByIdService _getInvoiceByIdService;
     private readonly CancelInvoiceService _cancelInvoiceService;
     private readonly RecordPaymentService _recordPaymentService;
+    private readonly VoidPaymentService _voidPaymentService;
+    private readonly GetInvoicePaymentsService _getInvoicePaymentsService;
 
     public InvoicesController(
         CreateInvoiceService createInvoiceService,
         GetInvoicesService getInvoicesService,
         GetInvoiceByIdService getInvoiceByIdService,
         CancelInvoiceService cancelInvoiceService,
-        RecordPaymentService recordPaymentService)
+        RecordPaymentService recordPaymentService,
+        VoidPaymentService voidPaymentService,
+        GetInvoicePaymentsService getInvoicePaymentsService)
     {
         _createInvoiceService = createInvoiceService;
         _getInvoicesService = getInvoicesService;
         _getInvoiceByIdService = getInvoiceByIdService;
         _cancelInvoiceService = cancelInvoiceService;
         _recordPaymentService = recordPaymentService;
+        _voidPaymentService = voidPaymentService;
+        _getInvoicePaymentsService = getInvoicePaymentsService;
     }
 
     [HttpGet]
@@ -162,6 +168,34 @@ public sealed class InvoicesController : ControllerBase
         return StatusCode(StatusCodes.Status201Created, new PaymentResponse(
             result.Id, result.Amount, result.PaidAtUtc, result.Method.ToString(), result.Reference,
             result.PaidTotal, result.Balance, result.IsPaid));
+    }
+
+    [HttpGet("{id:guid}/payments")]
+    public async Task<ActionResult<InvoicePaymentsResponse>> GetPayments(Guid id, CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(User.FindFirst(TokenClaimNames.BusinessId)?.Value, out var businessId))
+            return Unauthorized();
+
+        var result = await _getInvoicePaymentsService.ExecuteAsync(id, businessId, cancellationToken);
+        return Ok(new InvoicePaymentsResponse(
+            result.InvoiceId, result.InvoiceTotal, result.PaidTotal, result.Balance, result.IsPaid,
+            result.Payments.Select(payment => new PaymentHistoryItemResponse(
+                payment.Id, payment.Amount, payment.PaidAtUtc, payment.Method.ToString(), payment.Status.ToString(),
+                payment.Reference, payment.VoidedAtUtc, payment.VoidReason)).ToList()));
+    }
+
+    [HttpPatch("{invoiceId:guid}/payments/{paymentId:guid}/void")]
+    public async Task<IActionResult> VoidPayment(
+        Guid invoiceId,
+        Guid paymentId,
+        VoidPaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(User.FindFirst(TokenClaimNames.BusinessId)?.Value, out var businessId))
+            return Unauthorized();
+
+        await _voidPaymentService.ExecuteAsync(invoiceId, paymentId, businessId, request.Reason, cancellationToken);
+        return NoContent();
     }
 }
 
