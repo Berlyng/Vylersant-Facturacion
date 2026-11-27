@@ -6,6 +6,7 @@
     <Window.Resources>
         <SolidColorBrush x:Key="Ink" Color="#172A3A" />
         <SolidColorBrush x:Key="Teal" Color="#0E8A83" />
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <Style TargetType="Button">
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Padding" Value="14,10" />
@@ -42,6 +43,7 @@
                     <StackPanel DockPanel.Dock="Top">
                         <TextBlock Text="VYLERSANT" Foreground="#63D0C4" FontSize="14" FontWeight="Bold" Margin="8,10,0,28" />
                         <Button Content="Inicio" Tag="Inicio" Style="{x:Null}" HorizontalContentAlignment="Left" Foreground="White" Background="#294354" Click="Navigation_Click" />
+                        <Button Content="Punto de venta" Tag="POS" HorizontalContentAlignment="Left" Foreground="#D5DFE5" Background="Transparent" Click="Navigation_Click" />
                         <Button Content="Facturas" Tag="Facturas" HorizontalContentAlignment="Left" Foreground="#D5DFE5" Background="Transparent" Click="Navigation_Click" />
                         <Button Content="Productos" Tag="Productos" HorizontalContentAlignment="Left" Foreground="#D5DFE5" Background="Transparent" Click="Navigation_Click" />
                         <Button Content="Clientes" Tag="Clientes" HorizontalContentAlignment="Left" Foreground="#D5DFE5" Background="Transparent" Click="Navigation_Click" />
@@ -54,7 +56,7 @@
                 </DockPanel>
             </Border>
             <Grid Grid.Column="1" Margin="36">
-                <StackPanel>
+                <StackPanel x:Name="HomeContent">
                     <TextBlock x:Name="PageTitleText" Text="Inicio" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource Ink}" />
                     <TextBlock x:Name="PageDescriptionText" Text="Tu espacio de trabajo está listo." FontSize="14" Foreground="#657584" Margin="0,6,0,26" />
                     <Border Background="White" CornerRadius="14" Padding="26">
@@ -64,6 +66,84 @@
                         </StackPanel>
                     </Border>
                 </StackPanel>
+                <Grid x:Name="PosContent" Visibility="Collapsed">
+                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,18">
+                        <StackPanel Width="470">
+                            <TextBlock Text="Buscar producto" Foreground="#657584" Margin="0,0,0,6" />
+                            <TextBox x:Name="ProductSearchBox" Height="40" Padding="10" FontSize="14" TextChanged="ProductSearch_TextChanged" />
+                        </StackPanel>
+                        <StackPanel Margin="24,0,0,0" Width="260">
+                            <TextBlock Text="Cliente (opcional)" Foreground="#657584" Margin="0,0,0,6" />
+                            <ComboBox Height="40" Padding="8" ItemsSource="{Binding Customers}" DisplayMemberPath="Name"
+                                      SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}" />
+                        </StackPanel>
+                    </StackPanel>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="1.4*" /><ColumnDefinition Width="18" /><ColumnDefinition Width="1*" /></Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Background="White" CornerRadius="14" Padding="18">
+                            <Grid>
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                    <ItemsControl ItemsSource="{Binding Products}">
+                                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Width="205" Margin="0,0,12,12" Padding="14" Background="#F7F9FB" CornerRadius="10">
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap" MinHeight="38" />
+                                                        <TextBlock Text="{Binding Sku}" Foreground="#657584" FontSize="12" Margin="0,5,0,0" />
+                                                        <TextBlock Text="{Binding Price, StringFormat={}{0:C2}}" FontSize="18" FontWeight="SemiBold" Foreground="#0E8A83" Margin="0,8,0,10" />
+                                                        <Button Content="Agregar" Tag="{Binding}" Background="#0E8A83" Foreground="White" Click="AddProduct_Click" />
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                                <TextBlock Text="Cargando catálogo…" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Foreground="#657584" Background="White" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
+                                <TextBlock Text="{Binding ErrorMessage}" Foreground="#B42318" Background="White" TextWrapping="Wrap"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <TextBlock Text="No hay productos activos que coincidan con la búsqueda." Foreground="#657584" Background="White"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding HasNoProducts, Converter={StaticResource BoolToVisibility}}" />
+                            </Grid>
+                        </Border>
+                        <Border Grid.Column="2" Background="White" CornerRadius="14" Padding="18">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top" Text="Carrito" FontSize="19" FontWeight="SemiBold" Margin="0,0,0,12" />
+                                <StackPanel DockPanel.Dock="Bottom" Margin="0,12,0,0">
+                                    <Separator />
+                                    <DockPanel Margin="0,12,0,0">
+                                        <TextBlock Text="Subtotal" FontSize="16" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Subtotal, StringFormat={}{0:C2}}" FontSize="20" FontWeight="Bold" Foreground="#0E8A83" DockPanel.Dock="Right" />
+                                    </DockPanel>
+                                    <TextBlock Text="Vista previa; el total final se calcula al crear la factura." Foreground="#7A8996" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0" />
+                                </StackPanel>
+                                <DataGrid ItemsSource="{Binding Cart}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+                                          HeadersVisibility="Column" GridLinesVisibility="None" RowHeight="44">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Producto" Binding="{Binding Name}" Width="*" />
+                                        <DataGridTemplateColumn Header="Cant." Width="100">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <Button Content="−" Padding="6,2" Tag="{Binding}" Click="DecreaseQuantity_Click" />
+                                                        <TextBlock Text="{Binding Quantity}" VerticalAlignment="Center" Margin="6,0" />
+                                                        <Button Content="+" Padding="6,2" Tag="{Binding}" Click="IncreaseQuantity_Click" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="Importe" Binding="{Binding LineTotal, StringFormat={}{0:C2}}" Width="95" />
+                                        <DataGridTemplateColumn Header="" Width="48">
+                                            <DataGridTemplateColumn.CellTemplate><DataTemplate><Button Content="×" Tag="{Binding}" Click="RemoveProduct_Click" Padding="7,2" /></DataTemplate></DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
             </Grid>
         </Grid>
     </Grid>
