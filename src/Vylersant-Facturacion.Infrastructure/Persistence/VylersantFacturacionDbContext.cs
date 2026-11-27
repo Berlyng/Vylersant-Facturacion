@@ -9,6 +9,7 @@ using Vylersant_Facturacion.Domain.Entities.Businesses;
 using Vylersant_Facturacion.Domain.Entities.Customers;
 using Vylersant_Facturacion.Domain.Entities.Invoices;
 using Vylersant_Facturacion.Domain.Entities.Products;
+using Vylersant_Facturacion.Domain.Entities.Payments;
 using Vylersant_Facturacion.Domain.Entities.Users;
 
 namespace Vylersant_Facturacion.Infrastructure.Persistence
@@ -29,6 +30,7 @@ namespace Vylersant_Facturacion.Infrastructure.Persistence
         public DbSet<Customer> Customers => Set<Customer>();
         public DbSet<InvoiceLine> InvoiceLines => Set<InvoiceLine>();
         public DbSet<Invoice> Invoices => Set<Invoice>();
+        public DbSet<Payment> Payments => Set<Payment>();
 
         public async Task<TResult> ExecuteInTransactionAsync<TResult>(
             Func<CancellationToken, Task<TResult>> operation,
