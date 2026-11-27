@@ -5,6 +5,7 @@ using Vylersant_Facturacion.Application.Invoices;
 using Vylersant_Facturacion.Application.Products;
 using Vylersant_Facturacion.Application.Payments;
 using Vylersant_Facturacion.Application.Registration;
+using Vylersant_Facturacion.Application.Printing;
 
 namespace Vylersant_Facturacion.Application
 {
@@ -32,6 +33,7 @@ namespace Vylersant_Facturacion.Application
             services.AddScoped<RecordPaymentService>();
             services.AddScoped<VoidPaymentService>();
             services.AddScoped<GetInvoicePaymentsService>();
+            services.AddScoped<PrintInvoiceReceiptService>();
             services.AddSingleton(TimeProvider.System);
             return services;
         }
