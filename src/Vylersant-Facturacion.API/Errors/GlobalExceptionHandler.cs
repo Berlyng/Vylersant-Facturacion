@@ -30,6 +30,7 @@ namespace Vylersant_Facturacion.API.Errors
                 CustomerNotFoundException =>(StatusCodes.Status404NotFound,"Cliente no encontrado","El cliente solicitado no fue encontrado."),
                 InvoiceNotFoundException =>(StatusCodes.Status404NotFound,"Factura no encontrada","La factura solicitada no fue encontrada."),
                 InvoicePaymentException => (StatusCodes.Status400BadRequest, "Pago inválido", exception.Message),
+                PaymentNotFoundException => (StatusCodes.Status404NotFound, "Pago no encontrado", "El pago solicitado no fue encontrado."),
                 _ => (StatusCodes.Status500InternalServerError, "Error interno del servidor", "Ocurrió un error inesperado. Por favor, inténtelo de nuevo más tarde.")
 
 
