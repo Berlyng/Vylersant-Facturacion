@@ -212,6 +212,10 @@ public sealed class InvoiceEndpointTests : IClassFixture<Vylersant_FacturacionAp
         }
         public Task<decimal> GetCompletedTotalAsync(Guid invoiceId, Guid businessId, CancellationToken cancellationToken = default) =>
             Task.FromResult(_payments.Where(payment => payment.InvoiceId == invoiceId && payment.BusinessId == businessId && payment.Status == PaymentStatus.Completed).Sum(payment => payment.Amount));
+        public Task<Payment?> GetByIdAsync(Guid paymentId, Guid businessId, CancellationToken cancellationToken = default) =>
+            Task.FromResult(_payments.FirstOrDefault(payment => payment.Id == paymentId && payment.BusinessId == businessId));
+        public Task<IReadOnlyList<Payment>> GetForInvoiceAsync(Guid invoiceId, Guid businessId, CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<Payment>>(_payments.Where(payment => payment.InvoiceId == invoiceId && payment.BusinessId == businessId).ToList());
     }
 }
 
