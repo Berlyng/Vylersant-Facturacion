@@ -1,12 +1,71 @@
-﻿<Window x:Class="Vylersant_Facturacion.Desktop.MainWindow"
+<Window x:Class="Vylersant_Facturacion.Desktop.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Vylersant_Facturacion.Desktop"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Vylersant Facturación" Height="680" Width="1120" MinHeight="560" MinWidth="900"
+        WindowStartupLocation="CenterScreen" Background="#F3F5F8">
+    <Window.Resources>
+        <SolidColorBrush x:Key="Ink" Color="#172A3A" />
+        <SolidColorBrush x:Key="Teal" Color="#0E8A83" />
+        <Style TargetType="Button">
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+    </Window.Resources>
 
+    <Grid>
+        <Grid x:Name="LoginPanel" Visibility="Collapsed">
+            <Border Width="440" Padding="38" Background="White" CornerRadius="18"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border.Effect><DropShadowEffect BlurRadius="28" ShadowDepth="2" Opacity="0.12" /></Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="VYLERSANT" Foreground="{StaticResource Teal}" FontSize="14" FontWeight="Bold" />
+                    <TextBlock Text="Inicia sesión" Foreground="{StaticResource Ink}" FontSize="30" FontWeight="SemiBold" Margin="0,8,0,4" />
+                    <TextBlock Text="Accede a tu espacio de facturación." Foreground="#657584" Margin="0,0,0,26" />
+                    <TextBlock Text="Correo electrónico" FontWeight="SemiBold" Margin="0,0,0,7" />
+                    <TextBox x:Name="EmailTextBox" Height="42" Padding="10" FontSize="14" />
+                    <TextBlock Text="Contraseña" FontWeight="SemiBold" Margin="0,18,0,7" />
+                    <PasswordBox x:Name="PasswordBox" Height="42" Padding="10" FontSize="14" />
+                    <TextBlock x:Name="LoginErrorText" Foreground="#B42318" TextWrapping="Wrap" Margin="0,14,0,0" />
+                    <Button x:Name="LoginButton" Content="Entrar" Background="{StaticResource Teal}" Foreground="White"
+                            FontWeight="SemiBold" Margin="0,20,0,0" Click="Login_Click" />
+                    <TextBlock Text="Tus credenciales no se guardan en este dispositivo." Foreground="#7A8996"
+                               FontSize="12" TextWrapping="Wrap" Margin="0,18,0,0" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid x:Name="ShellPanel" Visibility="Collapsed">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="235" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+            <Border Grid.Column="0" Background="#172A3A">
+                <DockPanel Margin="18">
+                    <StackPanel DockPanel.Dock="Top">
+                        <TextBlock Text="VYLERSANT" Foreground="#63D0C4" FontSize="14" FontWeight="Bold" Margin="8,10,0,28" />
+                        <Button Content="Inicio" Tag="Inicio" Style="{x:Null}" HorizontalContentAlignment="Left" Foreground="White" Background="#294354" Click="Navigation_Click" />
+                        <Button Content="Facturas" Tag="Facturas" HorizontalContentAlignment="Left" Foreground="#D5DFE5" Background="Transparent" Click="Navigation_Click" />
+                        <Button Content="Productos" Tag="Productos" HorizontalContentAlignment="Left" Foreground="#D5DFE5" Background="Transparent" Click="Navigation_Click" />
+                        <Button Content="Clientes" Tag="Clientes" HorizontalContentAlignment="Left" Foreground="#D5DFE5" Background="Transparent" Click="Navigation_Click" />
+                    </StackPanel>
+                    <StackPanel DockPanel.Dock="Bottom" Margin="0,20,0,4">
+                        <TextBlock x:Name="UserNameText" Foreground="White" FontWeight="SemiBold" Margin="8,0,0,3" />
+                        <TextBlock x:Name="UserEmailText" Foreground="#AEBCC5" FontSize="12" TextTrimming="CharacterEllipsis" Margin="8,0,0,12" />
+                        <Button Content="Cerrar sesión" Foreground="#D5DFE5" Background="#294354" Click="Logout_Click" />
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+            <Grid Grid.Column="1" Margin="36">
+                <StackPanel>
+                    <TextBlock x:Name="PageTitleText" Text="Inicio" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource Ink}" />
+                    <TextBlock x:Name="PageDescriptionText" Text="Tu espacio de trabajo está listo." FontSize="14" Foreground="#657584" Margin="0,6,0,26" />
+                    <Border Background="White" CornerRadius="14" Padding="26">
+                        <StackPanel>
+                            <TextBlock Text="Sesión activa" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource Ink}" />
+                            <TextBlock x:Name="SessionStatusText" Text="La aplicación está conectada a tu cuenta." Foreground="#657584" Margin="0,8,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Grid>
     </Grid>
 </Window>
+
