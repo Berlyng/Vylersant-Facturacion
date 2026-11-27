@@ -78,6 +78,10 @@ public sealed class RecordPaymentServiceTests
         }
         public Task<decimal> GetCompletedTotalAsync(Guid invoiceId, Guid businessId, CancellationToken cancellationToken = default) =>
             Task.FromResult(Items.Where(p => p.InvoiceId == invoiceId && p.BusinessId == businessId && p.Status == PaymentStatus.Completed).Sum(p => p.Amount));
+        public Task<Payment?> GetByIdAsync(Guid paymentId, Guid businessId, CancellationToken cancellationToken = default) =>
+            Task.FromResult(Items.FirstOrDefault(p => p.Id == paymentId && p.BusinessId == businessId));
+        public Task<IReadOnlyList<Payment>> GetForInvoiceAsync(Guid invoiceId, Guid businessId, CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<Payment>>(Items.Where(p => p.InvoiceId == invoiceId && p.BusinessId == businessId).ToList());
     }
 
     private sealed class FakeUnitOfWork : IUnitOfWork
