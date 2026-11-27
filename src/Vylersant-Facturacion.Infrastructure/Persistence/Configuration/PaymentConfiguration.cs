@@ -19,6 +19,7 @@ public sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.Property(x => x.Reference).HasMaxLength(200);
         builder.Property(x => x.Status).IsRequired();
         builder.Property(x => x.VoidedAtUtc);
+        builder.Property(x => x.VoidReason).HasMaxLength(500);
         builder.HasIndex(x => new { x.BusinessId, x.InvoiceId, x.Status });
         builder.HasOne<Vylersant_Facturacion.Domain.Entities.Invoices.Invoice>()
             .WithMany().HasForeignKey(x => x.InvoiceId).OnDelete(DeleteBehavior.Restrict);
