@@ -19,6 +19,7 @@ public sealed class PaymentPersistenceConfigurationTests
         Assert.Equal("Payments", payment!.GetTableName());
         Assert.Equal(18, payment.FindProperty(nameof(Payment.Amount))!.GetPrecision());
         Assert.Equal(2, payment.FindProperty(nameof(Payment.Amount))!.GetScale());
+        Assert.Equal(500, payment.FindProperty(nameof(Payment.VoidReason))!.GetMaxLength());
         Assert.Contains(payment.GetIndexes(), index => index.Properties.Select(property => property.Name)
             .SequenceEqual(new[] { nameof(Payment.BusinessId), nameof(Payment.InvoiceId), nameof(Payment.Status) }));
         Assert.Contains(payment.GetForeignKeys(), foreignKey => foreignKey.Properties.Any(property => property.Name == nameof(Payment.InvoiceId))
