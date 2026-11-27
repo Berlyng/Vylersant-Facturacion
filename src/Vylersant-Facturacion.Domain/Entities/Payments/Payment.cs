@@ -20,6 +20,8 @@ public sealed class Payment
 
     public DateTime? VoidedAtUtc { get; private set; }
 
+    public string? VoidReason { get; private set; }
+
     private Payment()
     {
     }
@@ -68,15 +70,21 @@ public sealed class Payment
         Status = PaymentStatus.Completed;
     }
 
-    public void Void(DateTime voidedAtUtc)
+    public void Void(DateTime voidedAtUtc, string reason)
     {
         if (Status == PaymentStatus.Voided)
         {
             return;
         }
 
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            throw new ArgumentException("El motivo de anulación es obligatorio.", nameof(reason));
+        }
+
         Status = PaymentStatus.Voided;
         VoidedAtUtc = voidedAtUtc;
+        VoidReason = reason.Trim();
     }
 
     private static string? NormalizeOptionalText(string? value) =>
