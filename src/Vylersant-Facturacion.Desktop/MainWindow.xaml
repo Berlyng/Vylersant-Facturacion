@@ -4,7 +4,8 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         xml:lang="es-DO"
         Title="Vylersant Facturación" Height="740" Width="1200" MinHeight="560" MinWidth="900"
-        WindowStartupLocation="CenterScreen" Background="#F3F5F8" WindowStyle="None" ResizeMode="CanResize"
+        WindowStartupLocation="CenterScreen" WindowState="Maximized"
+        Background="#F3F5F8" WindowStyle="None" ResizeMode="CanResize"
         StateChanged="Window_StateChanged"
         FontFamily="Segoe UI Variable Text, Segoe UI" FontSize="14">
 
