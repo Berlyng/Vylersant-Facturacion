@@ -9,7 +9,7 @@
         FontFamily="Segoe UI Variable Text, Segoe UI" FontSize="14">
 
     <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="38" ResizeBorderThickness="6" CornerRadius="0"
+        <shell:WindowChrome CaptionHeight="42" ResizeBorderThickness="6" CornerRadius="0"
                             GlassFrameThickness="0" UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
 
@@ -199,8 +199,8 @@
         </Style>
 
         <Style x:Key="WindowControlButton" TargetType="Button">
-            <Setter Property="Width" Value="46" />
-            <Setter Property="Height" Value="38" />
+            <Setter Property="Width" Value="48" />
+            <Setter Property="Height" Value="42" />
             <Setter Property="Foreground" Value="#E7EEF2" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
@@ -226,8 +226,8 @@
         </Style>
 
         <Style x:Key="CloseWindowControlButton" TargetType="Button">
-            <Setter Property="Width" Value="46" />
-            <Setter Property="Height" Value="38" />
+            <Setter Property="Width" Value="48" />
+            <Setter Property="Height" Value="42" />
             <Setter Property="Foreground" Value="#E7EEF2" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
@@ -325,7 +325,7 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="38" />
+            <RowDefinition Height="42" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -341,15 +341,15 @@
             <StackPanel Grid.Column="1" Orientation="Horizontal">
                 <Button Style="{StaticResource WindowControlButton}" ToolTip="Minimizar" AutomationProperties.Name="Minimizar"
                         shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="MinimizeWindow_Click">
-                    <TextBlock Style="{StaticResource Icon}" Text="&#xE921;" FontSize="10" />
+                    <TextBlock Text="—" FontFamily="Segoe UI Symbol" FontSize="17" FontWeight="SemiBold" />
                 </Button>
                 <Button x:Name="WindowStateButton" Style="{StaticResource WindowControlButton}" ToolTip="Maximizar" AutomationProperties.Name="Maximizar"
                         shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="ToggleWindowState_Click">
-                    <TextBlock x:Name="WindowStateIcon" Style="{StaticResource Icon}" Text="&#xE922;" FontSize="10" />
+                    <TextBlock x:Name="WindowStateIcon" Text="□" FontFamily="Segoe UI Symbol" FontSize="15" />
                 </Button>
                 <Button Style="{StaticResource CloseWindowControlButton}" ToolTip="Cerrar" AutomationProperties.Name="Cerrar"
                         shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="CloseWindow_Click">
-                    <TextBlock Style="{StaticResource Icon}" Text="&#xE8BB;" FontSize="10" />
+                    <TextBlock Text="×" FontFamily="Segoe UI Symbol" FontSize="19" />
                 </Button>
             </StackPanel>
         </Grid>
