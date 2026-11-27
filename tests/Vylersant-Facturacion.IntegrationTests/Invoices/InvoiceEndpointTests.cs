@@ -17,6 +17,7 @@ using Vylersant_Facturacion.Domain.Entities.Invoices;
 using Vylersant_Facturacion.Domain.Entities.Users;
 using Vylersant_Facturacion.Domain.Entities.Payments;
 using PaymentRequest = Vylersant_Facturacion.Contracts.Payments.RecordPaymentRequest;
+using VoidPaymentContractRequest = Vylersant_Facturacion.Contracts.Payments.VoidPaymentRequest;
 using Vylersant_Facturacion.Contracts.Payments;
 
 namespace Vylersant_Facturacion.IntegrationTests.Invoices;
@@ -142,6 +143,38 @@ public sealed class InvoiceEndpointTests : IClassFixture<Vylersant_FacturacionAp
         var response = await client.PostAsJsonAsync($"/api/invoices/{invoice.Id}/payments", new PaymentRequest(1m, "Cash"));
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task PaymentHistory_ShouldKeepVoidedPaymentAndRecalculateBalance()
+    {
+        var businessId = Guid.NewGuid();
+        var invoice = CreateInvoice(businessId, 1);
+        var payments = new FakePaymentRepository();
+        using var factory = CreateFactory([invoice], [], payments);
+        using var client = CreateAuthenticatedClient(factory, CreateUser(businessId));
+
+        var created = await client.PostAsJsonAsync($"/api/invoices/{invoice.Id}/payments", new PaymentRequest(4m, "Cash"));
+        var payment = await created.Content.ReadFromJsonAsync<PaymentResponse>();
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        Assert.NotNull(payment);
+
+        var voidRoute = $"/api/invoices/{invoice.Id}/payments/{payment.Id}/void";
+        var firstVoid = await client.PatchAsJsonAsync(voidRoute, new VoidPaymentContractRequest("Pago duplicado"));
+        var repeatedVoid = await client.PatchAsJsonAsync(voidRoute, new VoidPaymentContractRequest("Motivo posterior"));
+        var historyResponse = await client.GetAsync($"/api/invoices/{invoice.Id}/payments");
+        var history = await historyResponse.Content.ReadFromJsonAsync<InvoicePaymentsResponse>();
+
+        Assert.Equal(HttpStatusCode.NoContent, firstVoid.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, repeatedVoid.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, historyResponse.StatusCode);
+        Assert.NotNull(history);
+        Assert.Equal(0m, history.PaidTotal);
+        Assert.Equal(invoice.Total, history.Balance);
+        var item = Assert.Single(history.Payments);
+        Assert.Equal("Voided", item.Status);
+        Assert.Equal("Pago duplicado", item.VoidReason);
+        Assert.NotNull(item.VoidedAtUtc);
     }
 
     private WebApplicationFactory<Program> CreateFactory(Invoice[] invoices, Customer[] customers, FakePaymentRepository? payments = null) =>
