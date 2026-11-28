@@ -6,6 +6,7 @@ using Vylersant_Facturacion.Contracts.Products;
 using Vylersant_Facturacion.Contracts.Invoices;
 using Vylersant_Facturacion.Application.Printing;
 using Vylersant_Facturacion.Desktop.Printing;
+using Vylersant_Facturacion.Desktop.Dashboard;
 
 namespace Vylersant_Facturacion.Desktop;
 
@@ -17,10 +18,12 @@ public partial class MainWindow : Window
     private readonly IInvoiceApiClient _invoiceApiClient;
     private readonly ReceiptPrinterSettingsStore _printerSettingsStore;
     private readonly EscPosReceiptPrinter _receiptPrinter;
+    private readonly DashboardViewModel _dashboardViewModel;
     private AuthenticatedSession? _currentSession;
+    private bool _isOwner;
 
     public MainWindow(SessionService sessionService, ICatalogApiClient catalogApiClient, IInvoiceApiClient invoiceApiClient,
-        ReceiptPrinterSettingsStore printerSettingsStore, EscPosReceiptPrinter receiptPrinter)
+        ReceiptPrinterSettingsStore printerSettingsStore, EscPosReceiptPrinter receiptPrinter, IDashboardApiClient dashboardApiClient)
     {
         _sessionService = sessionService;
         _invoiceApiClient = invoiceApiClient;
@@ -28,10 +31,12 @@ public partial class MainWindow : Window
         _invoiceHistoryViewModel = new InvoiceHistoryViewModel(invoiceApiClient);
         _printerSettingsStore = printerSettingsStore;
         _receiptPrinter = receiptPrinter;
+        _dashboardViewModel = new DashboardViewModel(dashboardApiClient);
         InitializeComponent();
         LoginPanel.Visibility = Visibility.Visible;
         PosContent.DataContext = _posViewModel;
         InvoicesContent.DataContext = _invoiceHistoryViewModel;
+        OwnerDashboardPanel.DataContext = _dashboardViewModel;
         UpdateWindowStateButton();
     }
 
@@ -115,9 +120,12 @@ public partial class MainWindow : Window
                     : $"La sección de {section.ToLowerInvariant()} estará disponible en un siguiente issue.";
         var showPos = section == "POS";
         var showInvoices = section == "Facturas";
+        var showHome = section == "Inicio";
         PosContent.Visibility = showPos ? Visibility.Visible : Visibility.Collapsed;
         InvoicesContent.Visibility = showInvoices ? Visibility.Visible : Visibility.Collapsed;
         HomeContent.Visibility = showPos || showInvoices ? Visibility.Collapsed : Visibility.Visible;
+        if (showHome && _isOwner && _currentSession is not null)
+            await _dashboardViewModel.LoadAsync(_currentSession.Tokens.AccessToken);
         if (showPos && _currentSession is not null)
             await _posViewModel.LoadAsync(_currentSession.Tokens.AccessToken);
         else if (showInvoices && _currentSession is not null)
@@ -135,6 +143,16 @@ public partial class MainWindow : Window
         if (_posViewModel.LastCreatedInvoice is { } created)
             ShowToast(ToastKind.Success, $"Factura #{created.Number} emitida", created.Total.ToString("C2"),
                 "Imprimir", () => _ = PrintCreatedInvoiceAsync(created));
+    }
+
+    private async void DashboardRefresh_Click(object sender, RoutedEventArgs e)
+    {
+        if (_isOwner && _currentSession is not null)
+        {
+            if (DashboardGroupByComboBox.SelectedItem is System.Windows.Controls.ComboBoxItem { Tag: string groupBy })
+                _dashboardViewModel.GroupBy = groupBy;
+            await _dashboardViewModel.LoadAsync(_currentSession.Tokens.AccessToken);
+        }
     }
 
     private async void InvoiceItem_Click(object sender, RoutedEventArgs e)
@@ -279,10 +297,14 @@ public partial class MainWindow : Window
         UserNameText.Text = session.User.Name;
         UserEmailText.Text = session.User.Email;
         SessionStatusText.Text = $"Sesión activa · {session.User.Role}";
+        _isOwner = string.Equals(session.User.Role, "Owner", StringComparison.OrdinalIgnoreCase);
+        OwnerDashboardPanel.Visibility = _isOwner ? Visibility.Visible : Visibility.Collapsed;
         SetConnectionState(online: true);
         LoginPanel.Visibility = Visibility.Collapsed;
         ShellPanel.Visibility = Visibility.Visible;
         ApplyResponsive();
+        if (_isOwner)
+            _ = _dashboardViewModel.LoadAsync(session.Tokens.AccessToken);
     }
 }
 
