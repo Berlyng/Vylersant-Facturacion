@@ -1,0 +1,55 @@
+<Window x:Class="Vylersant_Facturacion.Desktop.Printing.PrinterSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Configuración de impresión" Width="500" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" Background="#F3F5F8"
+        FontFamily="Segoe UI Variable Text, Segoe UI" FontSize="14" Loaded="Window_Loaded">
+    <Window.Resources>
+        <SolidColorBrush x:Key="Ink" Color="#172A3A" />
+        <SolidColorBrush x:Key="Muted" Color="#657584" />
+        <SolidColorBrush x:Key="Line" Color="#E3E9EE" />
+        <SolidColorBrush x:Key="Teal" Color="#0E8A83" />
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="42" />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="BorderBrush" Value="#D3DCE3" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Height" Value="42" />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="BorderBrush" Value="#D3DCE3" />
+        </Style>
+    </Window.Resources>
+    <Border Background="White" CornerRadius="16" Margin="18" Padding="26">
+        <StackPanel>
+            <TextBlock Text="Impresora de recibos" FontSize="23" FontWeight="SemiBold" Foreground="{StaticResource Ink}" />
+            <TextBlock Text="Configura el encabezado y el ancho del papel térmico." Foreground="{StaticResource Muted}" Margin="0,4,0,22" />
+
+            <TextBlock Text="Nombre del negocio en el recibo" FontWeight="SemiBold" Foreground="{StaticResource Ink}" Margin="0,0,0,7" />
+            <TextBox x:Name="BusinessNameTextBox" />
+
+            <TextBlock Text="Impresora de Windows" FontWeight="SemiBold" Foreground="{StaticResource Ink}" Margin="0,17,0,7" />
+            <ComboBox x:Name="PrinterComboBox" />
+            <TextBlock x:Name="PrinterErrorText" Foreground="#B42318" TextWrapping="Wrap" Margin="0,6,0,0" />
+
+            <TextBlock Text="Ancho de papel" FontWeight="SemiBold" Foreground="{StaticResource Ink}" Margin="0,17,0,7" />
+            <ComboBox x:Name="PaperWidthComboBox">
+                <ComboBoxItem Content="58 mm · 32 caracteres" Tag="32" />
+                <ComboBoxItem Content="72 mm · 42 caracteres" Tag="42" />
+                <ComboBoxItem Content="80 mm · 48 caracteres" Tag="48" />
+            </ComboBox>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,25,0,0">
+                <Button Content="Cancelar" MinWidth="100" Height="42" Margin="0,0,10,0" Padding="16,8"
+                        Background="White" BorderBrush="{StaticResource Line}" Click="Cancel_Click" />
+                <Button Content="Guardar configuración" MinWidth="170" Height="42" Padding="16,8"
+                        Background="{StaticResource Teal}" Foreground="White" BorderThickness="0"
+                        FontWeight="SemiBold" Click="Save_Click" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>
+
