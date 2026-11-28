@@ -2,10 +2,11 @@ using System.Windows;
 using System.Net.Http;
 using Vylersant_Facturacion.Desktop.Authentication;
 using Vylersant_Facturacion.Desktop.PointOfSale;
+using Vylersant_Facturacion.Desktop.Printing;
 
 namespace Vylersant_Facturacion.Desktop;
 
-public partial class App : Application
+public partial class App : System.Windows.Application
 {
     protected override async void OnStartup(StartupEventArgs e)
     {
@@ -16,7 +17,9 @@ public partial class App : Application
         var session = new SessionService(authenticationClient, new DpapiTokenStore(), TimeProvider.System);
         var catalogClient = new CatalogApiClient(httpClient);
         var invoiceClient = new InvoiceApiClient(httpClient);
-        var window = new MainWindow(session, catalogClient, invoiceClient);
+        var printerSettingsStore = new ReceiptPrinterSettingsStore();
+        var receiptPrinter = new EscPosReceiptPrinter(new WindowsRawPrinterTransport(), TimeProvider.System);
+        var window = new MainWindow(session, catalogClient, invoiceClient, printerSettingsStore, receiptPrinter);
         MainWindow = window;
         window.Show();
         await window.RestoreSessionAsync();
