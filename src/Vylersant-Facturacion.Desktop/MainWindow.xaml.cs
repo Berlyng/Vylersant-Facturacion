@@ -14,6 +14,7 @@ public partial class MainWindow : Window
     private readonly SessionService _sessionService;
     private readonly PosViewModel _posViewModel;
     private readonly InvoiceHistoryViewModel _invoiceHistoryViewModel;
+    private readonly IInvoiceApiClient _invoiceApiClient;
     private readonly ReceiptPrinterSettingsStore _printerSettingsStore;
     private readonly EscPosReceiptPrinter _receiptPrinter;
     private AuthenticatedSession? _currentSession;
@@ -22,6 +23,7 @@ public partial class MainWindow : Window
         ReceiptPrinterSettingsStore printerSettingsStore, EscPosReceiptPrinter receiptPrinter)
     {
         _sessionService = sessionService;
+        _invoiceApiClient = invoiceApiClient;
         _posViewModel = new PosViewModel(catalogApiClient, invoiceApiClient);
         _invoiceHistoryViewModel = new InvoiceHistoryViewModel(invoiceApiClient);
         _printerSettingsStore = printerSettingsStore;
@@ -53,12 +55,15 @@ public partial class MainWindow : Window
 
     private async void Login_Click(object sender, RoutedEventArgs e)
     {
+        if (!ValidateLoginFields())
+            return;
         LoginErrorText.Text = string.Empty;
-        LoginButton.IsEnabled = false;
+        SetLoginBusy(true);
         try
         {
-            var session = await _sessionService.LoginAsync(EmailTextBox.Text, PasswordBox.Password);
-            PasswordBox.Clear();
+            var password = RevealPasswordToggle.IsChecked == true ? PasswordRevealBox.Text : PasswordBox.Password;
+            var session = await _sessionService.LoginAsync(EmailTextBox.Text, password);
+            ResetLoginForm();
             ShowAuthenticatedShell(session);
         }
         catch (AuthenticationApiException exception)
@@ -75,19 +80,23 @@ public partial class MainWindow : Window
         }
         finally
         {
-            LoginButton.IsEnabled = true;
+            SetLoginBusy(false);
         }
     }
 
     private async void Logout_Click(object sender, RoutedEventArgs e)
     {
+        if (CartCount() > 0 && !await ConfirmAsync("¿Cerrar sesión con una venta en curso?",
+                $"Tienes {CartCount()} productos en el carrito. Si cierras sesión se descartarán.",
+                "Cerrar sesión y descartar", destructive: true, cancelText: "Seguir vendiendo"))
+            return;
         await _sessionService.LogoutAsync();
         _currentSession = null;
         _posViewModel.Clear();
         ShellPanel.Visibility = Visibility.Collapsed;
         LoginPanel.Visibility = Visibility.Visible;
+        ResetLoginForm();
         EmailTextBox.Clear();
-        PasswordBox.Clear();
         LoginErrorText.Text = "La sesión se cerró en este dispositivo.";
     }
 
@@ -112,7 +121,10 @@ public partial class MainWindow : Window
         if (showPos && _currentSession is not null)
             await _posViewModel.LoadAsync(_currentSession.Tokens.AccessToken);
         else if (showInvoices && _currentSession is not null)
+        {
+            _invoiceHistoryViewModel.Search(GlobalSearchBox.Text.All(char.IsDigit) ? GlobalSearchBox.Text : string.Empty);
             await _invoiceHistoryViewModel.LoadAsync(_currentSession.Tokens.AccessToken);
+        }
     }
 
     private async void ConfirmSale_Click(object sender, RoutedEventArgs e)
@@ -120,6 +132,9 @@ public partial class MainWindow : Window
         if (_currentSession is null)
             return;
         await _posViewModel.ConfirmSaleAsync(_currentSession.Tokens.AccessToken);
+        if (_posViewModel.LastCreatedInvoice is { } created)
+            ShowToast(ToastKind.Success, $"Factura #{created.Number} emitida", created.Total.ToString("C2"),
+                "Imprimir", () => _ = PrintCreatedInvoiceAsync(created));
     }
 
     private async void InvoiceItem_Click(object sender, RoutedEventArgs e)
@@ -137,7 +152,8 @@ public partial class MainWindow : Window
         {
             Owner = this
         };
-        dialog.ShowDialog();
+        if (dialog.ShowDialog() == true)
+            ShowToast(ToastKind.Success, "Impresora configurada", "La configuración quedó guardada para este negocio.");
     }
 
     private async void PrintInvoice_Click(object sender, RoutedEventArgs e)
@@ -145,11 +161,38 @@ public partial class MainWindow : Window
         if (_currentSession is null || _invoiceHistoryViewModel.Details is not { } details)
             return;
 
+        await PrintInvoiceDetailsAsync(_invoiceHistoryViewModel.Details);
+    }
+
+    private async Task PrintCreatedInvoiceAsync(CreateInvoiceResponse invoice)
+    {
+        if (_currentSession is null)
+            return;
+        try
+        {
+            var details = await _invoiceApiClient.GetDetailsAsync(invoice.InvoiceId, _currentSession.Tokens.AccessToken);
+            await PrintInvoiceDetailsAsync(details);
+        }
+        catch (InvoiceApiException exception)
+        {
+            ShowToast(ToastKind.Error, "No se pudo cargar la factura", exception.Message);
+        }
+        catch (HttpRequestException)
+        {
+            ShowToast(ToastKind.Error, "Sin conexión", "No se pudieron cargar los datos para imprimir.");
+        }
+    }
+
+    private async Task PrintInvoiceDetailsAsync(InvoiceDetailsResponse details)
+    {
+        if (_currentSession is null)
+            return;
         var businessId = _currentSession.User.BusinessId;
         var settings = await _printerSettingsStore.LoadAsync(businessId);
         if (settings is null)
         {
-            PrinterSettings_Click(sender, e);
+            var dialog = new PrinterSettingsWindow(businessId, _printerSettingsStore) { Owner = this };
+            dialog.ShowDialog();
             settings = await _printerSettingsStore.LoadAsync(businessId);
             if (settings is null)
                 return;
@@ -162,11 +205,10 @@ public partial class MainWindow : Window
             details.Total,
             details.Lines.Select(line => new ReceiptPrintLine(line.ProductName, line.Quantity, line.UnitPrice, line.LineTotal)).ToList());
         var result = await _receiptPrinter.PrintAsync(document, settings);
-        MessageBox.Show(this,
-            result.Succeeded ? $"Recibo enviado a la impresora. Trabajo #{result.JobId}." : result.ErrorMessage ?? "No se pudo imprimir el recibo.",
-            result.Succeeded ? "Impresión enviada" : "Error de impresión",
-            MessageBoxButton.OK,
-            result.Succeeded ? MessageBoxImage.Information : MessageBoxImage.Warning);
+        if (result.Succeeded)
+            ShowToast(ToastKind.Success, "Recibo enviado a la impresora", $"Trabajo #{result.JobId}");
+        else
+            ShowToast(ToastKind.Error, "No se pudo imprimir", result.ErrorMessage ?? "Revisa la impresora y vuelve a intentarlo.");
     }
 
     private void MinimizeWindow_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
@@ -174,7 +216,14 @@ public partial class MainWindow : Window
     private void ToggleWindowState_Click(object sender, RoutedEventArgs e) =>
         WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
 
-    private void CloseWindow_Click(object sender, RoutedEventArgs e) => Close();
+    private async void CloseWindow_Click(object sender, RoutedEventArgs e)
+    {
+        if (CartCount() > 0 && !await ConfirmAsync("¿Cerrar la aplicación?",
+                "Hay una venta en curso que no se ha confirmado.", "Cerrar y descartar",
+                destructive: true, cancelText: "Volver"))
+            return;
+        Close();
+    }
 
     private void Window_StateChanged(object? sender, EventArgs e) => UpdateWindowStateButton();
 
@@ -212,7 +261,11 @@ public partial class MainWindow : Window
     private void RemoveProduct_Click(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { Tag: CartLineViewModel line })
+        {
             _posViewModel.RemoveProduct(line);
+            ShowToast(ToastKind.Info, "Producto quitado del carrito", line.Name,
+                "Deshacer", () => _posViewModel.RestoreProduct(line.Product, line.Quantity), seconds: 6);
+        }
     }
 
     private void ShowAuthenticatedShell(AuthenticatedSession session)
@@ -225,8 +278,11 @@ public partial class MainWindow : Window
         PageDescriptionText.Text = "Tu espacio de trabajo está listo.";
         UserNameText.Text = session.User.Name;
         UserEmailText.Text = session.User.Email;
+        SessionStatusText.Text = $"Sesión activa · {session.User.Role}";
+        SetConnectionState(online: true);
         LoginPanel.Visibility = Visibility.Collapsed;
         ShellPanel.Visibility = Visibility.Visible;
+        ApplyResponsive();
     }
 }
 
