@@ -6,351 +6,55 @@
         Title="Vylersant Facturación" Height="740" Width="1200" MinHeight="560" MinWidth="900"
         WindowStartupLocation="CenterScreen" WindowState="Maximized"
         Background="#F3F5F8" WindowStyle="None" ResizeMode="CanResize"
-        StateChanged="Window_StateChanged"
+        UseLayoutRounding="True" SnapsToDevicePixels="True"
+        StateChanged="Window_StateChanged" SizeChanged="Window_SizeChanged"
+        PreviewKeyDown="Window_PreviewKeyDown"
         FontFamily="Segoe UI Variable Text, Segoe UI" FontSize="14">
 
     <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="42" ResizeBorderThickness="6" CornerRadius="0"
+        <!-- 36 px (antes 42): recupera 6 px verticales; coincide con el caption estándar de Windows 11 -->
+        <shell:WindowChrome CaptionHeight="36" ResizeBorderThickness="6" CornerRadius="0"
                             GlassFrameThickness="0" UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
 
     <Window.Resources>
-        <!-- ============ Paleta ============ -->
-        <SolidColorBrush x:Key="Ink" Color="#172A3A" />
-        <SolidColorBrush x:Key="InkSoft" Color="#294354" />
-        <SolidColorBrush x:Key="InkHover" Color="#36556A" />
-        <SolidColorBrush x:Key="Teal" Color="#0E8A83" />
-        <SolidColorBrush x:Key="TealDark" Color="#0B726C" />
-        <SolidColorBrush x:Key="TealPressed" Color="#095E59" />
-        <SolidColorBrush x:Key="TealMint" Color="#63D0C4" />
-        <SolidColorBrush x:Key="TealTint" Color="#E6F5F3" />
-        <SolidColorBrush x:Key="Muted" Color="#657584" />
-        <SolidColorBrush x:Key="Subtle" Color="#7A8996" />
-        <SolidColorBrush x:Key="Line" Color="#E3E9EE" />
-        <SolidColorBrush x:Key="Tile" Color="#F7F9FB" />
-        <SolidColorBrush x:Key="Danger" Color="#B42318" />
-        <SolidColorBrush x:Key="DangerTint" Color="#FDECEA" />
-        <SolidColorBrush x:Key="Success" Color="#12B76A" />
-        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
-
-        <!-- ============ Iconos (Segoe MDL2 Assets) ============ -->
-        <Style x:Key="Icon" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
-            <Setter Property="FontSize" Value="16" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-        </Style>
-
-        <!-- ============ Campos de texto ============ -->
-        <Style x:Key="Input" TargetType="TextBox">
-            <Setter Property="Height" Value="44" />
-            <Setter Property="Padding" Value="12,0" />
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="Foreground" Value="{StaticResource Ink}" />
-            <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="#D3DCE3" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1.5" CornerRadius="10" Padding="{TemplateBinding Padding}">
-                            <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="#9FB0BD" />
-                            </Trigger>
-                            <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource Teal}" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="InputPassword" TargetType="PasswordBox">
-            <Setter Property="Height" Value="44" />
-            <Setter Property="Padding" Value="12,0" />
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="Foreground" Value="{StaticResource Ink}" />
-            <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="#D3DCE3" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="PasswordBox">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1.5" CornerRadius="10" Padding="{TemplateBinding Padding}">
-                            <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="#9FB0BD" />
-                            </Trigger>
-                            <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource Teal}" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- ============ Botones ============ -->
-        <Style x:Key="PrimaryButton" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource Teal}" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="FontSize" Value="15" />
-            <Setter Property="Padding" Value="16,13" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="10" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource TealDark}" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource TealPressed}" />
-                            </Trigger>
-                            <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource TealDark}" />
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Bd" Property="Opacity" Value="0.5" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="SidebarButton" TargetType="Button">
-            <Setter Property="Foreground" Value="#D5DFE5" />
-            <Setter Property="Padding" Value="14,11" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="Transparent" BorderBrush="#3B5568" BorderThickness="1"
-                                CornerRadius="10" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource InkSoft}" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource InkHover}" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="IconButton" TargetType="Button">
-            <Setter Property="Width" Value="34" />
-            <Setter Property="Height" Value="34" />
-            <Setter Property="Foreground" Value="{StaticResource Ink}" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource TealTint}" />
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource Teal}" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#CDEBE7" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="DangerIconButton" TargetType="Button">
-            <Setter Property="Width" Value="30" />
-            <Setter Property="Height" Value="30" />
-            <Setter Property="Foreground" Value="{StaticResource Subtle}" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="Transparent" CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource DangerTint}" />
-                                <Setter Property="Foreground" Value="{StaticResource Danger}" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="WindowControlButton" TargetType="Button">
-            <Setter Property="Width" Value="48" />
-            <Setter Property="Height" Value="42" />
-            <Setter Property="Foreground" Value="#E7EEF2" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#294354" />
-                                <Setter Property="Foreground" Value="White" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#36556A" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="CloseWindowControlButton" TargetType="Button">
-            <Setter Property="Width" Value="48" />
-            <Setter Property="Height" Value="42" />
-            <Setter Property="Foreground" Value="#E7EEF2" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#C9372C" />
-                                <Setter Property="Foreground" Value="White" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#A82D24" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Tarjeta de producto: toda la tarjeta es un botón grande -->
-        <Style x:Key="ProductCard" TargetType="Button">
-            <Setter Property="Padding" Value="14" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="{StaticResource Tile}" BorderBrush="{StaticResource Line}" BorderThickness="1.5"
-                                CornerRadius="12" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource Teal}" />
-                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource TealTint}" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#CDEBE7" />
-                            </Trigger>
-                            <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource Teal}" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- ============ Navegación lateral (RadioButton: marca la sección activa sin código) ============ -->
-        <Style x:Key="NavItem" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="#C3D0D8" />
-            <Setter Property="Margin" Value="0,0,0,4" />
-            <Setter Property="Padding" Value="14,12" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="Bd" Background="Transparent" CornerRadius="10" Padding="{TemplateBinding Padding}">
-                            <Grid>
-                                <Border x:Name="Indicator" Width="4" Height="20" CornerRadius="2" HorizontalAlignment="Left"
-                                        Margin="-14,0,0,0" Background="{StaticResource TealMint}" Visibility="Collapsed" />
-                                <ContentPresenter VerticalAlignment="Center" />
-                            </Grid>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#203747" />
-                                <Setter Property="Foreground" Value="White" />
-                            </Trigger>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource InkSoft}" />
-                                <Setter TargetName="Indicator" Property="Visibility" Value="Visible" />
-                                <Setter Property="Foreground" Value="White" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- ============ Tarjeta base ============ -->
-        <Style x:Key="Card" TargetType="Border">
-            <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="{StaticResource Line}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="14" />
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Theme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="42" />
+            <RowDefinition Height="36" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Barra de título con controles de ventana -->
+        <!-- ===================== BARRA DE TÍTULO ===================== -->
         <Grid x:Name="TitleBar" Grid.Row="0" Background="{StaticResource Ink}">
-            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
-                <Border Width="22" Height="22" CornerRadius="7" Background="{StaticResource Teal}">
-                    <TextBlock Text="V" Foreground="White" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center">
+                <Border Width="20" Height="20" CornerRadius="6" Background="{StaticResource Teal}">
+                    <TextBlock Text="V" Foreground="White" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Border>
                 <TextBlock Text="Vylersant Facturación" Foreground="White" FontWeight="SemiBold" FontSize="12" Margin="9,0,0,0" VerticalAlignment="Center" />
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal">
                 <Button Style="{StaticResource WindowControlButton}" ToolTip="Minimizar" AutomationProperties.Name="Minimizar"
                         shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="MinimizeWindow_Click">
-                    <TextBlock Text="—" FontFamily="Segoe UI Symbol" FontSize="17" FontWeight="SemiBold" />
+                    <TextBlock Text="—" FontFamily="Segoe UI Symbol" FontSize="16" FontWeight="SemiBold" />
                 </Button>
                 <Button x:Name="WindowStateButton" Style="{StaticResource WindowControlButton}" ToolTip="Maximizar" AutomationProperties.Name="Maximizar"
                         shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="ToggleWindowState_Click">
-                    <TextBlock x:Name="WindowStateIcon" Text="□" FontFamily="Segoe UI Symbol" FontSize="15" />
+                    <TextBlock x:Name="WindowStateIcon" Text="□" FontFamily="Segoe UI Symbol" FontSize="14" />
                 </Button>
                 <Button Style="{StaticResource CloseWindowControlButton}" ToolTip="Cerrar" AutomationProperties.Name="Cerrar"
                         shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="CloseWindow_Click">
-                    <TextBlock Text="×" FontFamily="Segoe UI Symbol" FontSize="19" />
+                    <TextBlock Text="×" FontFamily="Segoe UI Symbol" FontSize="18" />
                 </Button>
             </StackPanel>
         </Grid>
@@ -364,130 +68,184 @@
                 </LinearGradientBrush>
             </Grid.Background>
 
-            <Border Width="440" Padding="40,36" Background="White" CornerRadius="20"
-                    HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="40" ShadowDepth="6" Opacity="0.28" Color="#000000" />
-                </Border.Effect>
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,26">
-                        <Border Width="42" Height="42" CornerRadius="12" Background="{StaticResource Teal}">
-                            <TextBlock Text="V" Foreground="White" FontSize="22" FontWeight="Bold"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <!-- ScrollViewer: la tarjeta nunca se recorta a 560 px de alto -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          KeyboardNavigation.TabNavigation="Cycle">
+                <Border Width="420" Margin="24" Padding="32,28" Background="White" CornerRadius="{StaticResource RadiusXl}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center" Effect="{StaticResource ShadowPopover}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,22">
+                            <Border Width="40" Height="40" CornerRadius="12" Background="{StaticResource Teal}">
+                                <TextBlock Text="V" Foreground="White" FontSize="21" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Vylersant" Style="{StaticResource TextTitle}" FontSize="18" FontWeight="Bold" />
+                                <TextBlock Text="Facturación para tu comercio" Style="{StaticResource TextCaption}" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <TextBlock Text="Inicia sesión" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource Ink}" />
+                        <TextBlock Text="Entra para facturar y revisar tus ventas." Style="{StaticResource TextSecondary}" Margin="0,6,0,22" TextWrapping="Wrap" />
+
+                        <!-- Correo -->
+                        <TextBlock Text="Correo electrónico" Foreground="{StaticResource Ink}" FontWeight="SemiBold" Margin="0,0,0,6" />
+                        <TextBox x:Name="EmailTextBox" Style="{StaticResource Input}" TabIndex="1"
+                                 AutomationProperties.Name="Correo electrónico" InputScope="EmailSmtpAddress"
+                                 TextChanged="LoginField_TextChanged" KeyDown="LoginField_KeyDown" />
+                        <TextBlock x:Name="EmailErrorText" Style="{StaticResource TextError}" />
+
+                        <!-- Contraseña con mostrar/ocultar -->
+                        <TextBlock Text="Contraseña" Foreground="{StaticResource Ink}" FontWeight="SemiBold" Margin="0,16,0,6" />
+                        <Grid>
+                            <PasswordBox x:Name="PasswordBox" Style="{StaticResource InputPassword}" Padding="12,0,84,0" TabIndex="2"
+                                         AutomationProperties.Name="Contraseña" PasswordChanged="LoginField_PasswordChanged"
+                                         KeyDown="LoginField_KeyDown" PreviewKeyUp="PasswordBox_CapsCheck" GotKeyboardFocus="PasswordBox_CapsCheck" />
+                            <TextBox x:Name="PasswordRevealBox" Style="{StaticResource Input}" Padding="12,0,84,0" TabIndex="2"
+                                     AutomationProperties.Name="Contraseña (visible)" Visibility="Collapsed"
+                                     TextChanged="LoginField_TextChanged" KeyDown="LoginField_KeyDown" />
+                            <ToggleButton x:Name="RevealPasswordToggle" Style="{StaticResource GhostToggle}" Content="Mostrar"
+                                          HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,6,0" Height="32" Width="68" TabIndex="3"
+                                          AutomationProperties.Name="Mostrar u ocultar contraseña" ToolTip="Mostrar u ocultar contraseña"
+                                          Checked="RevealPassword_Changed" Unchecked="RevealPassword_Changed" />
+                        </Grid>
+                        <TextBlock x:Name="PasswordErrorText" Style="{StaticResource TextError}" />
+                        <StackPanel x:Name="CapsLockHint" Orientation="Horizontal" Margin="0,6,0,0" Visibility="Collapsed">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE7BA;" FontSize="12" Foreground="{StaticResource Warning}" />
+                            <TextBlock Text="Bloq Mayús está activado." FontSize="12" Foreground="{StaticResource Warning}" Margin="6,0,0,0" />
+                        </StackPanel>
+
+                        <!-- Error general (solo cuando hay mensaje). Se anuncia a lectores de pantalla. -->
+                        <Border Background="{StaticResource DangerTint}" BorderBrush="{StaticResource DangerBorder}" BorderThickness="1"
+                                CornerRadius="{StaticResource RadiusMd}" Padding="12,10" Margin="0,16,0,0"
+                                AutomationProperties.LiveSetting="Assertive">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=LoginErrorText}" Value="">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xEA39;" FontSize="14" Foreground="{StaticResource Danger}" VerticalAlignment="Top" Margin="0,2,10,0" />
+                                <TextBlock x:Name="LoginErrorText" Foreground="{StaticResource Danger}" TextWrapping="Wrap" FontSize="13" MaxWidth="320" />
+                            </StackPanel>
                         </Border>
-                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Vylersant" Foreground="{StaticResource Ink}" FontSize="18" FontWeight="Bold" />
-                            <TextBlock Text="Facturación para tu comercio" Foreground="{StaticResource Muted}" FontSize="12" />
+
+                        <Button x:Name="LoginButton" Style="{StaticResource PrimaryButton}" Height="46" Margin="0,20,0,0"
+                                IsDefault="True" TabIndex="4" Click="Login_Click">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <!-- Gris sobre el botón deshabilitado: visible solo mientras IsEnabled=False -->
+                                <Ellipse x:Name="LoginSpinner" Style="{StaticResource Spinner}" Stroke="{StaticResource Muted}"
+                                         Visibility="Collapsed" Margin="0,0,10,0">
+                                    <Ellipse.RenderTransform>
+                                        <RotateTransform />
+                                    </Ellipse.RenderTransform>
+                                </Ellipse>
+                                <TextBlock x:Name="LoginButtonText" Text="Entrar" />
+                            </StackPanel>
+                        </Button>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE72E;" FontSize="12" Foreground="{StaticResource Subtle}" VerticalAlignment="Top" Margin="0,2,0,0" />
+                            <TextBlock Text="Tus credenciales no se guardan en este dispositivo." Style="{StaticResource TextCaption}"
+                                       Foreground="{StaticResource Subtle}" TextWrapping="Wrap" Margin="8,0,0,0" MaxWidth="330" />
                         </StackPanel>
                     </StackPanel>
-
-                    <TextBlock Text="Inicia sesión" Foreground="{StaticResource Ink}" FontSize="28" FontWeight="SemiBold" />
-                    <TextBlock Text="Entra para facturar y revisar tus ventas." Foreground="{StaticResource Muted}" Margin="0,6,0,26" TextWrapping="Wrap" />
-
-                    <TextBlock Text="Correo electrónico" Foreground="{StaticResource Ink}" FontWeight="SemiBold" Margin="0,0,0,7" />
-                    <TextBox x:Name="EmailTextBox" Style="{StaticResource Input}" />
-
-                    <TextBlock Text="Contraseña" Foreground="{StaticResource Ink}" FontWeight="SemiBold" Margin="0,18,0,7" />
-                    <PasswordBox x:Name="PasswordBox" Style="{StaticResource InputPassword}" />
-
-                    <!-- El aviso solo aparece cuando hay un mensaje -->
-                    <Border Background="{StaticResource DangerTint}" CornerRadius="10" Padding="12,10" Margin="0,16,0,0">
-                        <Border.Style>
-                            <Style TargetType="Border">
-                                <Setter Property="Visibility" Value="Visible" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Text, ElementName=LoginErrorText}" Value="">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-                        <TextBlock x:Name="LoginErrorText" Foreground="{StaticResource Danger}" TextWrapping="Wrap" FontSize="13" />
-                    </Border>
-
-                    <Button x:Name="LoginButton" Content="Entrar" Style="{StaticResource PrimaryButton}"
-                            IsDefault="True" Margin="0,22,0,0" Click="Login_Click" />
-
-                    <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
-                        <TextBlock Style="{StaticResource Icon}" Text="&#xE72E;" FontSize="12" Foreground="{StaticResource Subtle}" />
-                        <TextBlock Text="Tus credenciales no se guardan en este dispositivo." Foreground="{StaticResource Subtle}"
-                                   FontSize="12" TextWrapping="Wrap" Margin="8,0,0,0" MaxWidth="340" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
+                </Border>
+            </ScrollViewer>
         </Grid>
 
         <!-- ===================== SHELL ===================== -->
         <Grid x:Name="ShellPanel" Grid.Row="1" Visibility="Collapsed">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="230" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!-- Barra lateral -->
-            <Border Grid.Column="0" Background="{StaticResource Ink}">
-                <DockPanel Margin="16,20,16,16">
+            <!-- ===== Barra lateral: 216 px expandida · 64 px compacta (Ctrl+B). Se compacta sola bajo 1100 px. ===== -->
+            <Border x:Name="Sidebar" Grid.Column="0" Width="216" Background="{StaticResource Ink}">
+                <DockPanel Margin="12,12,12,12" LastChildFill="False">
                     <StackPanel DockPanel.Dock="Top">
-                        <StackPanel Orientation="Horizontal" Margin="6,0,0,28">
-                            <Border Width="34" Height="34" CornerRadius="10" Background="{StaticResource Teal}">
-                                <TextBlock Text="V" Foreground="White" FontSize="17" FontWeight="Bold"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Border>
-                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Vylersant" Foreground="White" FontSize="16" FontWeight="Bold" />
-                                <TextBlock Text="Facturación" Foreground="{StaticResource TealMint}" FontSize="11" />
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="SidebarToggleButton" Style="{StaticResource SidebarIconButton}" Click="ToggleSidebar_Click"
+                                    ToolTip="Contraer menú (Ctrl+B)" AutomationProperties.Name="Contraer o expandir menú lateral" TabIndex="0">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE700;" />
+                            </Button>
+                            <StackPanel x:Name="SidebarBrand" Grid.Column="1" Orientation="Horizontal" Margin="8,0,0,0" VerticalAlignment="Center" Tag="nav-label">
+                                <Border Width="28" Height="28" CornerRadius="8" Background="{StaticResource Teal}">
+                                    <TextBlock Text="V" Foreground="White" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Vylersant" Foreground="White" FontSize="15" FontWeight="Bold" />
+                                    <TextBlock Text="Facturación" Foreground="{StaticResource TealMint}" FontSize="11" />
+                                </StackPanel>
                             </StackPanel>
-                        </StackPanel>
+                        </Grid>
 
-                        <RadioButton x:Name="NavHome" GroupName="Nav" IsChecked="True" Tag="Inicio" Style="{StaticResource NavItem}" Click="Navigation_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xE80F;" />
-                                <TextBlock Text="Inicio" Margin="14,0,0,0" FontWeight="SemiBold" />
-                            </StackPanel>
-                        </RadioButton>
-                        <RadioButton x:Name="NavPos" GroupName="Nav" Tag="POS" Style="{StaticResource NavItem}" Click="Navigation_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xE7BF;" />
-                                <TextBlock Text="Punto de venta" Margin="14,0,0,0" FontWeight="SemiBold" />
-                            </StackPanel>
-                        </RadioButton>
-                        <RadioButton x:Name="NavInvoices" GroupName="Nav" Tag="Facturas" Style="{StaticResource NavItem}" Click="Navigation_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xE8A5;" />
-                                <TextBlock Text="Facturas" Margin="14,0,0,0" FontWeight="SemiBold" />
-                            </StackPanel>
-                        </RadioButton>
-                        <RadioButton GroupName="Nav" Tag="Productos" Style="{StaticResource NavItem}" Click="Navigation_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xE719;" />
-                                <TextBlock Text="Productos" Margin="14,0,0,0" FontWeight="SemiBold" />
-                            </StackPanel>
-                        </RadioButton>
-                        <RadioButton GroupName="Nav" Tag="Clientes" Style="{StaticResource NavItem}" Click="Navigation_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xE716;" />
-                                <TextBlock Text="Clientes" Margin="14,0,0,0" FontWeight="SemiBold" />
-                            </StackPanel>
-                        </RadioButton>
+                        <!-- TabNavigation=Once: Tab entra una vez al menú y las flechas ↑↓ cambian de sección -->
+                        <StackPanel KeyboardNavigation.TabNavigation="Once" KeyboardNavigation.DirectionalNavigation="Contained">
+                            <RadioButton x:Name="NavHome" GroupName="Nav" IsChecked="True" Tag="Inicio" Style="{StaticResource NavItem}"
+                                         ToolTip="Inicio (Ctrl+1)" AutomationProperties.Name="Inicio" Click="Navigation_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE80F;" Width="20" TextAlignment="Center" />
+                                    <TextBlock Tag="nav-label" Text="Inicio" Margin="12,0,0,0" FontWeight="SemiBold" />
+                                </StackPanel>
+                            </RadioButton>
+                            <RadioButton x:Name="NavPos" GroupName="Nav" Tag="POS" Style="{StaticResource NavItem}"
+                                         ToolTip="Punto de venta (Ctrl+2)" AutomationProperties.Name="Punto de venta" Click="Navigation_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE7BF;" Width="20" TextAlignment="Center" />
+                                    <TextBlock Tag="nav-label" Text="Punto de venta" Margin="12,0,0,0" FontWeight="SemiBold" />
+                                </StackPanel>
+                            </RadioButton>
+                            <RadioButton x:Name="NavInvoices" GroupName="Nav" Tag="Facturas" Style="{StaticResource NavItem}"
+                                         ToolTip="Facturas (Ctrl+3)" AutomationProperties.Name="Facturas" Click="Navigation_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE8A5;" Width="20" TextAlignment="Center" />
+                                    <TextBlock Tag="nav-label" Text="Facturas" Margin="12,0,0,0" FontWeight="SemiBold" />
+                                </StackPanel>
+                            </RadioButton>
+                            <RadioButton x:Name="NavProducts" GroupName="Nav" Tag="Productos" Style="{StaticResource NavItem}"
+                                         ToolTip="Productos (Ctrl+4)" AutomationProperties.Name="Productos" Click="Navigation_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE719;" Width="20" TextAlignment="Center" />
+                                    <TextBlock Tag="nav-label" Text="Productos" Margin="12,0,0,0" FontWeight="SemiBold" />
+                                </StackPanel>
+                            </RadioButton>
+                            <RadioButton x:Name="NavCustomers" GroupName="Nav" Tag="Clientes" Style="{StaticResource NavItem}"
+                                         ToolTip="Clientes (Ctrl+5)" AutomationProperties.Name="Clientes" Click="Navigation_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE716;" Width="20" TextAlignment="Center" />
+                                    <TextBlock Tag="nav-label" Text="Clientes" Margin="12,0,0,0" FontWeight="SemiBold" />
+                                </StackPanel>
+                            </RadioButton>
+                        </StackPanel>
                     </StackPanel>
 
                     <!-- Usuario -->
-                    <Border DockPanel.Dock="Bottom" Background="#203747" CornerRadius="12" Padding="12" VerticalAlignment="Bottom">
+                    <Border DockPanel.Dock="Bottom" Background="{StaticResource InkRaised}" CornerRadius="{StaticResource RadiusLg}" Padding="8" VerticalAlignment="Bottom">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <Border Width="36" Height="36" CornerRadius="18" Background="{StaticResource InkSoft}">
-                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE77B;" Foreground="{StaticResource TealMint}"
-                                               HorizontalAlignment="Center" />
+                                <Border Width="32" Height="32" CornerRadius="16" Background="{StaticResource InkSoft}">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE77B;" Foreground="{StaticResource TealMint}" HorizontalAlignment="Center" />
                                 </Border>
-                                <StackPanel Margin="10,0,0,0" VerticalAlignment="Center" MaxWidth="130">
-                                    <TextBlock x:Name="UserNameText" Foreground="White" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock x:Name="UserEmailText" Foreground="#AEBCC5" FontSize="11" TextTrimming="CharacterEllipsis" />
+                                <StackPanel Tag="nav-label" Margin="9,0,0,0" VerticalAlignment="Center" MaxWidth="120">
+                                    <TextBlock x:Name="UserNameText" Foreground="White" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock x:Name="UserEmailText" Foreground="{StaticResource OnInkMuted}" FontSize="11" TextTrimming="CharacterEllipsis" />
                                 </StackPanel>
                             </StackPanel>
-                            <Button Style="{StaticResource SidebarButton}" Margin="0,12,0,0" Click="Logout_Click">
+                            <Button Style="{StaticResource SidebarButton}" Margin="0,8,0,0" ToolTip="Cerrar sesión"
+                                    AutomationProperties.Name="Cerrar sesión" Click="Logout_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Icon}" Text="&#xE7E8;" FontSize="13" />
-                                    <TextBlock Text="Cerrar sesión" Margin="8,0,0,0" FontSize="13" />
+                                    <TextBlock Tag="nav-label" Text="Cerrar sesión" Margin="8,0,0,0" FontSize="13" />
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -495,140 +253,311 @@
                 </DockPanel>
             </Border>
 
-            <!-- Contenido -->
-            <Grid Grid.Column="1" Margin="28,24,28,24">
+            <!-- ===== Contenido: margen 24/16 (antes 28/24) ===== -->
+            <Grid Grid.Column="1" Margin="24,12,24,16">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <!-- Cabecera (siempre visible, también en POS) -->
-                <StackPanel Grid.Row="0" Margin="0,0,0,20">
-                    <TextBlock x:Name="PageTitleText" Text="Inicio" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource Ink}" />
-                    <TextBlock x:Name="PageDescriptionText" Text="Tu espacio de trabajo está listo." FontSize="14"
-                               Foreground="{StaticResource Muted}" Margin="0,4,0,0" />
-                </StackPanel>
+                <!-- Cabecera contextual: título + descripción en una línea · estado · búsqueda global · acción primaria -->
+                <Grid Grid.Row="0" Margin="0,0,0,12" MinHeight="44">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="160" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                <!-- INICIO -->
-                <StackPanel x:Name="HomeContent" Grid.Row="1">
-                    <Border Style="{StaticResource Card}" Padding="24">
-                        <StackPanel>
+                    <Grid Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="PageTitleText" Text="Inicio" Style="{StaticResource TextDisplay}" />
+                        <TextBlock x:Name="PageDescriptionText" Grid.Column="1" Text="Tu espacio de trabajo está listo."
+                                   Style="{StaticResource TextSecondary}" VerticalAlignment="Bottom" Margin="14,0,0,3"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Grid>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" KeyboardNavigation.TabNavigation="Local">
+                        <!-- Búsqueda global (Ctrl+K): productos y facturas recientes por número -->
+                        <Grid x:Name="GlobalSearchHost" Width="260" Margin="0,0,10,0">
+                            <TextBox x:Name="GlobalSearchBox" Style="{StaticResource Input}" Height="38" Padding="36,0,54,0" FontSize="13"
+                                     AutomationProperties.Name="Búsqueda global" AutomationProperties.AcceleratorKey="Ctrl+K"
+                                     KeyDown="GlobalSearch_KeyDown" TextChanged="GlobalSearch_TextChanged" />
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE721;" FontSize="14" Foreground="{StaticResource Subtle}"
+                                       HorizontalAlignment="Left" Margin="12,0,0,0" IsHitTestVisible="False" />
+                            <TextBlock Text="Producto o factura reciente" Foreground="{StaticResource Subtle}" FontSize="13" IsHitTestVisible="False"
+                                       VerticalAlignment="Center" Margin="37,0,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=GlobalSearchBox}" Value="">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <Border Style="{StaticResource KbdChip}" HorizontalAlignment="Right" Margin="0,0,8,0" IsHitTestVisible="False">
+                                <TextBlock Style="{StaticResource KbdText}" Text="Ctrl K" />
+                            </Border>
+                        </Grid>
+
+                        <!-- Conexión / sincronización -->
+                        <Border x:Name="ConnectionChip" Style="{StaticResource Chip}" Margin="0,0,10,0" ToolTip="Conectado al servidor"
+                                AutomationProperties.LiveSetting="Polite">
                             <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="10" Height="10" Fill="{StaticResource Success}" VerticalAlignment="Center" />
-                                <TextBlock Text="Sesión activa" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource Ink}" Margin="10,0,0,0" />
+                                <Ellipse x:Name="ConnectionDot" Width="8" Height="8" Fill="{StaticResource Success}" VerticalAlignment="Center" />
+                                <TextBlock x:Name="ConnectionText" Text="En línea" Margin="7,0,0,0" FontSize="12" FontWeight="SemiBold"
+                                           Foreground="{StaticResource SuccessText}" />
                             </StackPanel>
-                            <TextBlock x:Name="SessionStatusText" Text="La aplicación está conectada a tu cuenta."
-                                       Foreground="{StaticResource Muted}" Margin="20,8,0,0" TextWrapping="Wrap" />
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
+                        </Border>
 
-                <!-- PUNTO DE VENTA -->
+                        <!-- Turno de caja: mostrar cuando el ViewModel exponga el turno (SetShiftState) -->
+                        <Border x:Name="ShiftChip" Style="{StaticResource Chip}" Margin="0,0,10,0" Visibility="Collapsed">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE823;" FontSize="12" Foreground="{StaticResource Muted}" />
+                                <TextBlock x:Name="ShiftText" Margin="7,0,0,0" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource Ink}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Button x:Name="NewSaleButton" Style="{StaticResource PrimaryButton}" Height="38" MinHeight="38" Padding="14,0"
+                                ToolTip="Nueva venta (Ctrl+N)" AutomationProperties.AcceleratorKey="Ctrl+N" Click="NewSale_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="12" Foreground="White" />
+                                <TextBlock Text="Nueva venta" Margin="8,0,0,0" FontSize="13" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ===================== INICIO ===================== -->
+                <Grid x:Name="HomeContent" Grid.Row="1">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel MaxWidth="980" HorizontalAlignment="Left">
+                            <Border Style="{StaticResource Card}" Padding="20">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Width="10" Height="10" Fill="{StaticResource Success}" VerticalAlignment="Center" />
+                                        <TextBlock Text="Sesión activa" Style="{StaticResource TextTitle}" Margin="10,0,0,0" />
+                                    </StackPanel>
+                                    <TextBlock x:Name="SessionStatusText" Text="La aplicación está conectada a tu cuenta."
+                                               Style="{StaticResource TextSecondary}" Margin="20,6,0,0" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Acciones rápidas -->
+                            <Grid Margin="0,12,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Style="{StaticResource ProductCard}" Padding="16" Tag="POS" Click="QuickAction_Click"
+                                        AutomationProperties.Name="Nueva venta">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Width="40" Height="40" CornerRadius="{StaticResource RadiusMd}" Background="{StaticResource TealTint}">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE7BF;" FontSize="18" Foreground="{StaticResource TealDark}" HorizontalAlignment="Center" />
+                                        </Border>
+                                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Nueva venta" Style="{StaticResource TextTitle}" />
+                                            <TextBlock Text="Abre el punto de venta" Style="{StaticResource TextCaption}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Button>
+                                <Button Grid.Column="2" Style="{StaticResource ProductCard}" Padding="16" Tag="Facturas" Click="QuickAction_Click"
+                                        AutomationProperties.Name="Ver facturas">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Width="40" Height="40" CornerRadius="{StaticResource RadiusMd}" Background="{StaticResource TealTint}">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE8A5;" FontSize="18" Foreground="{StaticResource TealDark}" HorizontalAlignment="Center" />
+                                        </Border>
+                                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Ver facturas" Style="{StaticResource TextTitle}" />
+                                            <TextBlock Text="Revisa e imprime recibos" Style="{StaticResource TextCaption}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+                            <!-- Atajos -->
+                            <Border Style="{StaticResource Card}" Padding="20" Margin="0,12,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="Atajos de teclado" Style="{StaticResource TextTitle}" Margin="0,0,0,14" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="32" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <DockPanel Margin="0,0,0,10">
+                                                <Border DockPanel.Dock="Right" Style="{StaticResource KbdChip}">
+                                                    <TextBlock Style="{StaticResource KbdText}" Text="F2" />
+                                                </Border>
+                                                <TextBlock Style="{StaticResource TextBody}" Text="Buscar producto" />
+                                            </DockPanel>
+                                            <DockPanel Margin="0,0,0,10">
+                                                <Border DockPanel.Dock="Right" Style="{StaticResource KbdChip}">
+                                                    <TextBlock Style="{StaticResource KbdText}" Text="F9" />
+                                                </Border>
+                                                <TextBlock Style="{StaticResource TextBody}" Text="Confirmar venta" />
+                                            </DockPanel>
+                                            <DockPanel Margin="0,0,0,10">
+                                                <Border DockPanel.Dock="Right" Style="{StaticResource KbdChip}">
+                                                    <TextBlock Style="{StaticResource KbdText}" Text="Ctrl N" />
+                                                </Border>
+                                                <TextBlock Style="{StaticResource TextBody}" Text="Nueva venta" />
+                                            </DockPanel>
+                                            <DockPanel>
+                                                <Border DockPanel.Dock="Right" Style="{StaticResource KbdChip}">
+                                                    <TextBlock Style="{StaticResource KbdText}" Text="Esc" />
+                                                </Border>
+                                                <TextBlock Style="{StaticResource TextBody}" Text="Limpiar búsqueda o cerrar diálogo" />
+                                            </DockPanel>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <DockPanel Margin="0,0,0,10">
+                                                <Border DockPanel.Dock="Right" Style="{StaticResource KbdChip}">
+                                                    <TextBlock Style="{StaticResource KbdText}" Text="Ctrl K" />
+                                                </Border>
+                                                <TextBlock Style="{StaticResource TextBody}" Text="Búsqueda global (factura / NCF)" />
+                                            </DockPanel>
+                                            <DockPanel Margin="0,0,0,10">
+                                                <Border DockPanel.Dock="Right" Style="{StaticResource KbdChip}">
+                                                    <TextBlock Style="{StaticResource KbdText}" Text="Ctrl 1–5" />
+                                                </Border>
+                                                <TextBlock Style="{StaticResource TextBody}" Text="Cambiar de sección" />
+                                            </DockPanel>
+                                            <DockPanel Margin="0,0,0,10">
+                                                <Border DockPanel.Dock="Right" Style="{StaticResource KbdChip}">
+                                                    <TextBlock Style="{StaticResource KbdText}" Text="Ctrl B" />
+                                                </Border>
+                                                <TextBlock Style="{StaticResource TextBody}" Text="Contraer o expandir menú" />
+                                            </DockPanel>
+                                            <DockPanel>
+                                                <Border DockPanel.Dock="Right" Style="{StaticResource KbdChip}">
+                                                    <TextBlock Style="{StaticResource KbdText}" Text="Ctrl P" />
+                                                </Border>
+                                                <TextBlock Style="{StaticResource TextBody}" Text="Imprimir recibo seleccionado" />
+                                            </DockPanel>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+
+                <!-- ===================== PUNTO DE VENTA ===================== -->
                 <Grid x:Name="PosContent" Grid.Row="1" Visibility="Collapsed">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <!-- Búsqueda y cliente -->
-                    <Grid Grid.Row="0" Margin="0,0,0,16">
+                    <!-- Búsqueda + cliente (una sola fila, sin etiquetas sueltas) -->
+                    <Grid Grid.Row="0" Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="16" />
-                            <ColumnDefinition Width="280" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="260" />
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Buscar producto" Foreground="{StaticResource Muted}" FontSize="13" Margin="0,0,0,6" />
-                            <Grid>
-                                <TextBox x:Name="ProductSearchBox" Style="{StaticResource Input}" Height="46"
-                                         Padding="42,0,12,0" FontSize="15" TextChanged="ProductSearch_TextChanged" />
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xE721;" Foreground="{StaticResource Subtle}"
-                                           HorizontalAlignment="Left" Margin="14,0,0,0" IsHitTestVisible="False" />
-                                <TextBlock Text="Escribe el nombre o el código del producto" Foreground="#9AA8B3" IsHitTestVisible="False"
-                                           VerticalAlignment="Center" Margin="43,0,0,0" FontSize="15">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Text, ElementName=ProductSearchBox}" Value="">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </Grid>
-                        </StackPanel>
+                        <Grid Grid.Column="0">
+                            <TextBox x:Name="ProductSearchBox" Style="{StaticResource Input}" Height="46" Padding="42,0,86,0" FontSize="15" TabIndex="1"
+                                     AutomationProperties.Name="Buscar producto por nombre, código o SKU" AutomationProperties.AcceleratorKey="F2"
+                                     TextChanged="ProductSearch_TextChanged" KeyDown="ProductSearch_KeyDown" />
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE721;" Foreground="{StaticResource Subtle}"
+                                       HorizontalAlignment="Left" Margin="14,0,0,0" IsHitTestVisible="False" />
+                            <TextBlock Text="Nombre, código o SKU · escanea para agregar" Foreground="{StaticResource Subtle}" IsHitTestVisible="False"
+                                       VerticalAlignment="Center" Margin="43,0,90,0" FontSize="15" TextTrimming="CharacterEllipsis">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=ProductSearchBox}" Value="">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <!-- Con texto: botón limpiar. Vacío: chip F2. -->
+                            <Button Content="Limpiar" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                    Margin="0,0,8,0" MinHeight="30" Padding="8,0" FontSize="12" Click="ClearSearch_Click"
+                                    AutomationProperties.Name="Limpiar búsqueda" ToolTip="Limpiar búsqueda (Esc)">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource GhostButton}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=ProductSearchBox}" Value="">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Border HorizontalAlignment="Right" Margin="0,0,10,0" IsHitTestVisible="False">
+                                <Border.Style>
+                                    <Style TargetType="Border" BasedOn="{StaticResource KbdChip}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=ProductSearchBox}" Value="">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock Style="{StaticResource KbdText}" Text="F2" />
+                            </Border>
+                        </Grid>
 
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Cliente (opcional)" Foreground="{StaticResource Muted}" FontSize="13" Margin="0,0,0,6" />
-                            <ComboBox Height="46" Padding="10,0" VerticalContentAlignment="Center" FontSize="14"
-                                      ItemsSource="{Binding Customers}" DisplayMemberPath="Name"
-                                      SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}" />
-                        </StackPanel>
+                        <ComboBox Grid.Column="2" Style="{StaticResource InputCombo}" Height="46" TabIndex="2"
+                                  Tag="Venta sin cliente" AutomationProperties.Name="Cliente (opcional)"
+                                  ItemsSource="{Binding Customers}" DisplayMemberPath="Name"
+                                  SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}" />
                     </Grid>
 
                     <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.5*" />
-                            <ColumnDefinition Width="16" />
-                            <ColumnDefinition Width="1*" MinWidth="320" />
+                            <ColumnDefinition Width="*" MinWidth="240" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition x:Name="PosCartColumn" Width="372" />
                         </Grid.ColumnDefinitions>
 
-                        <!-- Catálogo -->
-                        <Border Grid.Column="0" Style="{StaticResource Card}" Padding="16">
+                        <!-- ============ Catálogo ============ -->
+                        <Border Grid.Column="0" Style="{StaticResource Card}" Padding="12,12,0,0">
                             <Grid>
-                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                                    <ItemsControl ItemsSource="{Binding Products}">
+                                <!-- ItemWidth lo calcula ProductsScroll_SizeChanged (columnas enteras, sin sobrantes) -->
+                                <ScrollViewer x:Name="ProductsScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                              SizeChanged="ProductsScroll_SizeChanged" Focusable="False">
+                                    <ItemsControl x:Name="ProductsItems" Tag="196" ItemsSource="{Binding Products}"
+                                                  KeyboardNavigation.DirectionalNavigation="Contained" KeyboardNavigation.TabNavigation="Continue">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <WrapPanel />
+                                                <WrapPanel ItemWidth="{Binding Tag, RelativeSource={RelativeSource AncestorType=ItemsControl}}" />
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Button Width="204" Margin="0,0,12,12" Tag="{Binding}"
-                                                        Style="{StaticResource ProductCard}" Click="AddProduct_Click">
+                                                <Button Margin="0,0,10,10" Tag="{Binding}" Style="{StaticResource ProductCard}" Click="AddProduct_Click"
+                                                        AutomationProperties.Name="{Binding Name}" ToolTip="Agregar al carrito">
                                                     <StackPanel>
-                                                        <Grid Margin="0,0,0,12">
-                                                            <Border Width="48" Height="48" CornerRadius="15"
-                                                                    Background="{StaticResource TealTint}" HorizontalAlignment="Left">
-                                                                <TextBlock Style="{StaticResource Icon}" Text="&#xE734;" FontSize="22"
-                                                                           Foreground="{StaticResource Teal}" HorizontalAlignment="Center" />
+                                                        <Grid Margin="0,0,0,10">
+                                                            <Border Width="36" Height="36" CornerRadius="10" Background="{StaticResource TealTint}" HorizontalAlignment="Left">
+                                                                <TextBlock Style="{StaticResource Icon}" Text="&#xE734;" FontSize="18" Foreground="{StaticResource TealDark}" HorizontalAlignment="Center" />
                                                             </Border>
-                                                            <Border Width="28" Height="28" CornerRadius="14"
-                                                                    Background="{StaticResource Teal}" HorizontalAlignment="Right"
-                                                                    VerticalAlignment="Center">
-                                                                <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="11"
-                                                                           Foreground="White" HorizontalAlignment="Center" />
+                                                            <Border Width="26" Height="26" CornerRadius="13" Background="{StaticResource TealDark}" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                                                <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="11" Foreground="White" HorizontalAlignment="Center" />
                                                             </Border>
                                                         </Grid>
-                                                        <TextBlock Text="{Binding Name}" FontFamily="Segoe UI Variable Display, Segoe UI"
-                                                                   FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource Ink}"
-                                                                   LineHeight="20" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"
-                                                                   MinHeight="42" MaxHeight="42" />
-                                                        <Border Background="{StaticResource Tile}" CornerRadius="6"
-                                                                Padding="7,4" Margin="0,8,0,0" HorizontalAlignment="Left">
-                                                            <TextBlock Foreground="{StaticResource Muted}" FontFamily="Segoe UI"
-                                                                       FontSize="10" TextTrimming="CharacterEllipsis">
-                                                                <Run Text="SKU  " /><Run Text="{Binding Sku}" />
-                                                            </TextBlock>
-                                                        </Border>
-                                                        <StackPanel Margin="0,12,0,13">
-                                                            <TextBlock Text="PRECIO UNITARIO" FontSize="9" FontWeight="SemiBold"
-                                                                       Foreground="{StaticResource Subtle}" />
-                                                            <TextBlock Text="{Binding Price, StringFormat={}{0:C2}}"
-                                                                       FontFamily="Segoe UI Variable Display, Segoe UI" FontSize="23"
-                                                                       FontWeight="SemiBold" Foreground="{StaticResource Teal}" Margin="0,2,0,0" />
-                                                        </StackPanel>
-                                                        <Border Background="{StaticResource Teal}" CornerRadius="8" Padding="0,9">
-                                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                                                <TextBlock Style="{StaticResource Icon}" Text="&#xE7BF;" FontSize="12" Foreground="White" />
-                                                                <TextBlock Text="Añadir al carrito" Foreground="White" FontSize="12"
-                                                                           FontWeight="SemiBold" Margin="8,0,0,0" />
-                                                            </StackPanel>
-                                                        </Border>
+                                                        <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource Ink}"
+                                                                   LineHeight="18" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MinHeight="36" MaxHeight="36" />
+                                                        <TextBlock Text="{Binding Price, StringFormat={}{0:C2}}" FontSize="18" FontWeight="SemiBold"
+                                                                   Foreground="{StaticResource TealDark}" Margin="0,8,0,0" />
+                                                        <TextBlock FontSize="11" Foreground="{StaticResource Muted}" TextTrimming="CharacterEllipsis" Margin="0,2,0,0">
+                                                            <Run Text="SKU " /><Run Text="{Binding Sku}" />
+                                                        </TextBlock>
                                                     </StackPanel>
                                                 </Button>
                                             </DataTemplate>
@@ -636,25 +565,35 @@
                                     </ItemsControl>
                                 </ScrollViewer>
 
-                                <!-- Cargando -->
-                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Background="White"
-                                            Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}">
-                                    <ProgressBar IsIndeterminate="True" Width="160" Height="4" Foreground="{StaticResource Teal}" Background="{StaticResource TealTint}" BorderThickness="0" />
-                                    <TextBlock Text="Cargando catálogo…" Foreground="{StaticResource Muted}" Margin="0,12,0,0" HorizontalAlignment="Center" />
-                                </StackPanel>
+                                <!-- Cargando: skeleton (mantiene la forma del contenido, evita saltos de layout) -->
+                                <ScrollViewer VerticalScrollBarVisibility="Disabled" Background="White" IsHitTestVisible="False"
+                                              Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}">
+                                    <WrapPanel ItemWidth="{Binding Tag, ElementName=ProductsItems}">
+                                        <ContentControl Style="{StaticResource SkeletonCard}" />
+                                        <ContentControl Style="{StaticResource SkeletonCard}" />
+                                        <ContentControl Style="{StaticResource SkeletonCard}" />
+                                        <ContentControl Style="{StaticResource SkeletonCard}" />
+                                        <ContentControl Style="{StaticResource SkeletonCard}" />
+                                        <ContentControl Style="{StaticResource SkeletonCard}" />
+                                        <ContentControl Style="{StaticResource SkeletonCard}" />
+                                        <ContentControl Style="{StaticResource SkeletonCard}" />
+                                    </WrapPanel>
+                                </ScrollViewer>
 
                                 <!-- Sin resultados -->
-                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Background="White"
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,12,12" Background="White"
                                             Visibility="{Binding HasNoProducts, Converter={StaticResource BoolToVisibility}}">
-                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE721;" FontSize="34" Foreground="#B8C4CD" HorizontalAlignment="Center" />
-                                    <TextBlock Text="No se encontraron productos" FontWeight="SemiBold" Foreground="{StaticResource Ink}"
-                                               FontSize="16" Margin="0,12,0,4" HorizontalAlignment="Center" />
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE721;" FontSize="32" Foreground="{StaticResource Subtle}" HorizontalAlignment="Center" />
+                                    <TextBlock Text="No se encontraron productos" Style="{StaticResource TextTitle}" Margin="0,12,0,4" HorizontalAlignment="Center" />
                                     <TextBlock Text="Prueba con otro nombre o código, o revisa que el producto esté activo."
-                                               Foreground="{StaticResource Muted}" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="320" />
+                                               Style="{StaticResource TextSecondary}" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="320" />
+                                    <Button Content="Limpiar búsqueda" Style="{StaticResource SecondaryButton}" Margin="0,14,0,0" HorizontalAlignment="Center" Click="ClearSearch_Click">
+                                    </Button>
                                 </StackPanel>
 
-                                <!-- Error (solo si hay mensaje) -->
-                                <Border Background="{StaticResource DangerTint}" CornerRadius="10" Padding="16,12" MaxWidth="420"
+                                <!-- Error con reintento -->
+                                <Border Background="{StaticResource DangerTint}" BorderBrush="{StaticResource DangerBorder}" BorderThickness="1"
+                                        CornerRadius="{StaticResource RadiusLg}" Padding="16" MaxWidth="400" Margin="0,0,12,12"
                                         HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <Border.Style>
                                         <Style TargetType="Border">
@@ -669,37 +608,64 @@
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
-                                    <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource Danger}" TextWrapping="Wrap" />
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xEA39;" FontSize="16" Foreground="{StaticResource Danger}" VerticalAlignment="Top" Margin="0,1,10,0" />
+                                            <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource Danger}" TextWrapping="Wrap" MaxWidth="330" />
+                                        </StackPanel>
+                                        <Button Content="Reintentar" Style="{StaticResource SecondaryButton}" Margin="26,12,0,0" HorizontalAlignment="Left" Click="RetryCatalog_Click">
+                                        </Button>
+                                    </StackPanel>
                                 </Border>
                             </Grid>
                         </Border>
 
-                        <!-- Carrito -->
-                        <Border Grid.Column="2" Style="{StaticResource Card}" Padding="18">
+                        <!-- ============ Carrito ============ -->
+                        <Border Grid.Column="2" Style="{StaticResource Card}" Padding="16" KeyboardNavigation.TabNavigation="Local">
                             <DockPanel>
                                 <!-- Encabezado -->
-                                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,14">
-                                    <Border DockPanel.Dock="Right" Background="{StaticResource TealTint}" CornerRadius="10" Padding="10,2" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Cart.Count}" Foreground="{StaticResource Teal}" FontWeight="Bold" />
+                                <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Carrito" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource Ink}" VerticalAlignment="Center" />
+                                    <Border Grid.Column="1" Background="{StaticResource TealTint}" CornerRadius="{StaticResource RadiusPill}" Padding="9,1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Cart.Count}" Foreground="{StaticResource TealDark}" FontWeight="Bold" FontSize="13" />
                                     </Border>
-                                    <TextBlock Text="Carrito" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource Ink}" />
-                                </DockPanel>
+                                    <Button Grid.Column="2" HorizontalAlignment="Right" Content="Vaciar"
+                                            Click="ClearCart_Click" ToolTip="Vaciar carrito" AutomationProperties.Name="Vaciar carrito">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource GhostDangerButton}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cart.Count}" Value="0">
+                                                        <Setter Property="IsEnabled" Value="False" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </Grid>
 
-                                <!-- Total -->
-                                <StackPanel DockPanel.Dock="Bottom" Margin="0,12,0,0">
-                                    <Border Background="{StaticResource Tile}" CornerRadius="12" Padding="16">
-                                    <StackPanel>
-                                        <DockPanel>
-                                            <TextBlock DockPanel.Dock="Right" Text="{Binding Subtotal, StringFormat={}{0:C2}}"
-                                                       FontSize="26" FontWeight="Bold" Foreground="{StaticResource Teal}" />
-                                            <TextBlock Text="Subtotal" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource Ink}" VerticalAlignment="Center" />
-                                        </DockPanel>
-                                        <TextBlock Text="Vista previa; el total final se calcula al crear la factura."
-                                                   Foreground="{StaticResource Subtle}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0" />
-                                    </StackPanel>
+                                <!-- Pie: subtotal · error · cobrar -->
+                                <StackPanel DockPanel.Dock="Bottom" Margin="0,10,0,0">
+                                    <Border Background="{StaticResource Tile}" BorderBrush="{StaticResource Line}" BorderThickness="1"
+                                            CornerRadius="{StaticResource RadiusMd}" Padding="14,10">
+                                        <StackPanel>
+                                            <DockPanel>
+                                                <TextBlock DockPanel.Dock="Right" Text="{Binding Subtotal, StringFormat={}{0:C2}}"
+                                                           FontSize="22" FontWeight="Bold" Foreground="{StaticResource TealDark}" />
+                                                <TextBlock Text="Subtotal" Style="{StaticResource TextTitle}" VerticalAlignment="Center" />
+                                            </DockPanel>
+                                            <TextBlock Text="Vista previa; el total final se calcula al crear la factura."
+                                                       Style="{StaticResource TextCaption}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                        </StackPanel>
                                     </Border>
-                                    <Border Background="{StaticResource DangerTint}" CornerRadius="10" Padding="11" Margin="0,10,0,0"
-                                            >
+
+                                    <Border Background="{StaticResource DangerTint}" BorderBrush="{StaticResource DangerBorder}" BorderThickness="1"
+                                            CornerRadius="{StaticResource RadiusMd}" Padding="10,8" Margin="0,8,0,0"
+                                            AutomationProperties.LiveSetting="Assertive">
                                         <Border.Style>
                                             <Style TargetType="Border">
                                                 <Setter Property="Visibility" Value="Visible" />
@@ -713,31 +679,44 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
-                                        <TextBlock Text="{Binding SaleErrorMessage}" Foreground="{StaticResource Danger}" TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding SaleErrorMessage}" Foreground="{StaticResource Danger}" FontSize="13" TextWrapping="Wrap" />
                                     </Border>
-                                    <Border Background="{StaticResource TealTint}" CornerRadius="10" Padding="11" Margin="0,10,0,0"
-                                            Visibility="{Binding HasCreatedInvoice, Converter={StaticResource BoolToVisibility}}">
-                                        <StackPanel>
-                                            <TextBlock Text="Venta registrada" Foreground="{StaticResource TealDark}" FontWeight="SemiBold" />
-                                            <TextBlock Foreground="{StaticResource Ink}" Margin="0,3,0,0">
-                                                <Run Text="Factura #" /><Run Text="{Binding LastCreatedInvoice.Number}" /><Run Text=" · " />
-                                                <Run Text="{Binding LastCreatedInvoice.Total, StringFormat={}{0:C2}}" />
-                                            </TextBlock>
-                                        </StackPanel>
-                                    </Border>
-                                    <ProgressBar IsIndeterminate="True" Height="3" Margin="0,10,0,0" Foreground="{StaticResource Teal}"
+
+                                    <ProgressBar IsIndeterminate="True" Height="3" Margin="0,8,0,0" BorderThickness="0"
+                                                 Foreground="{StaticResource Teal}" Background="{StaticResource TealTint}"
                                                  Visibility="{Binding IsSubmitting, Converter={StaticResource BoolToVisibility}}" />
-                                    <Button Content="Confirmar venta" Style="{StaticResource PrimaryButton}" Margin="0,10,0,0"
-                                            IsEnabled="{Binding CanSubmit}" Click="ConfirmSale_Click" />
+
+                                    <!-- El éxito ("Factura #N emitida") se muestra como toast con acción "Imprimir" -->
+                                    <Button x:Name="ConfirmSaleButton" Style="{StaticResource PrimaryButton}" Height="48" Margin="0,8,0,0"
+                                            IsEnabled="{Binding CanSubmit}" Click="ConfirmSale_Click"
+                                            AutomationProperties.AcceleratorKey="F9">
+                                        <TextBlock FontSize="15">
+                                            <Run Text="Confirmar venta" /><Run Text="   F9" FontSize="12" FontWeight="Normal" />
+                                        </TextBlock>
+                                    </Button>
+                                    <!-- Explica por qué está deshabilitado -->
+                                    <TextBlock Text="Agrega al menos un producto para confirmar." FontSize="11"
+                                               HorizontalAlignment="Center" Margin="0,6,0,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource TextCaption}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cart.Count}" Value="0">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                 </StackPanel>
 
+                                <!-- Líneas -->
                                 <Grid>
                                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                                         <ItemsControl ItemsSource="{Binding Cart}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Border Background="{StaticResource Tile}" BorderBrush="{StaticResource Line}" BorderThickness="1"
-                                                            CornerRadius="12" Padding="12" Margin="0,0,6,8">
+                                                    <Border BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" Padding="0,10" Margin="0,0,8,0">
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="*" />
@@ -748,23 +727,23 @@
                                                                 <RowDefinition Height="Auto" />
                                                             </Grid.RowDefinitions>
 
-                                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" FontWeight="SemiBold"
-                                                                       Foreground="{StaticResource Ink}" TextWrapping="Wrap" Margin="0,4,8,0" />
-                                                            <Button Grid.Row="0" Grid.Column="1" Tag="{Binding}" ToolTip="Quitar del carrito"
+                                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" FontWeight="SemiBold" Foreground="{StaticResource Ink}"
+                                                                       TextWrapping="Wrap" MaxHeight="40" TextTrimming="CharacterEllipsis" Margin="0,5,8,0" />
+                                                            <Button Grid.Row="0" Grid.Column="1" Tag="{Binding}" ToolTip="Quitar del carrito" AutomationProperties.Name="Quitar del carrito"
                                                                     Style="{StaticResource DangerIconButton}" Click="RemoveProduct_Click">
                                                                 <TextBlock Style="{StaticResource Icon}" Text="&#xE711;" FontSize="12"
                                                                            Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                                                             </Button>
 
-                                                            <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,10,0,0">
-                                                                <Button Tag="{Binding}" ToolTip="Quitar una unidad"
-                                                                        Style="{StaticResource IconButton}" Click="DecreaseQuantity_Click">
+                                                            <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,8,0,0">
+                                                                <Button Tag="{Binding}" ToolTip="Quitar una unidad" AutomationProperties.Name="Quitar una unidad"
+                                                                        Style="{StaticResource IconButton}" Width="32" Height="32" Click="DecreaseQuantity_Click">
                                                                     <TextBlock Style="{StaticResource Icon}" Text="&#xE738;" FontSize="12" />
                                                                 </Button>
                                                                 <TextBlock Text="{Binding Quantity, StringFormat={}{0:0.##}}" MinWidth="40" TextAlignment="Center"
                                                                            VerticalAlignment="Center" FontWeight="SemiBold" FontSize="15" Foreground="{StaticResource Ink}" />
-                                                                <Button Tag="{Binding}" ToolTip="Agregar una unidad"
-                                                                        Style="{StaticResource IconButton}" Click="IncreaseQuantity_Click">
+                                                                <Button Tag="{Binding}" ToolTip="Agregar una unidad" AutomationProperties.Name="Agregar una unidad"
+                                                                        Style="{StaticResource IconButton}" Width="32" Height="32" Click="IncreaseQuantity_Click">
                                                                     <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="12" />
                                                                 </Button>
                                                             </StackPanel>
@@ -790,168 +769,254 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </StackPanel.Style>
-                                        <TextBlock Style="{StaticResource Icon}" Text="&#xE7BF;" FontSize="38" Foreground="#B8C4CD" HorizontalAlignment="Center" />
-                                        <TextBlock Text="Tu carrito está vacío" FontWeight="SemiBold" FontSize="16" Foreground="{StaticResource Ink}"
-                                                   Margin="0,12,0,4" HorizontalAlignment="Center" />
-                                        <TextBlock Text="Toca un producto para agregarlo a la venta." Foreground="{StaticResource Muted}"
-                                                   TextWrapping="Wrap" TextAlignment="Center" MaxWidth="240" />
+                                        <TextBlock Style="{StaticResource Icon}" Text="&#xE7BF;" FontSize="34" Foreground="{StaticResource Subtle}" HorizontalAlignment="Center" />
+                                        <TextBlock Text="Tu carrito está vacío" Style="{StaticResource TextTitle}" Margin="0,10,0,4" HorizontalAlignment="Center" />
+                                        <TextBlock Text="Toca un producto o escanea su código para agregarlo a la venta."
+                                                   Style="{StaticResource TextSecondary}" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="230" />
                                     </StackPanel>
                                 </Grid>
                             </DockPanel>
                         </Border>
                     </Grid>
                 </Grid>
-                <!-- HISTORIAL DE FACTURAS -->
+
+                <!-- ===================== FACTURAS ===================== -->
                 <Grid x:Name="InvoicesContent" Grid.Row="1" Visibility="Collapsed">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.9*" />
-                        <ColumnDefinition Width="16" />
-                        <ColumnDefinition Width="1.3*" />
+                        <ColumnDefinition Width="0.8*" MinWidth="280" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="1.4*" MinWidth="320" />
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Style="{StaticResource Card}" Padding="18">
+
+                    <!-- Lista -->
+                    <Border Grid.Column="0" Style="{StaticResource Card}" Padding="16,16,10,10">
                         <DockPanel>
-                            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,14" LastChildFill="True">
-                                <Button DockPanel.Dock="Right" Click="PrinterSettings_Click" ToolTip="Configurar impresora"
-                                        Background="{StaticResource TealTint}" BorderThickness="0" Padding="11,9"
-                                        Cursor="Hand" Margin="8,0,0,0">
+                            <Grid DockPanel.Dock="Top" Margin="0,0,6,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Facturas recientes" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource Ink}" />
+                                    <TextBlock Text="{Binding VisibleCount, StringFormat={}{0} facturas}" Style="{StaticResource TextCaption}" Margin="0,2,0,0" />
+                                </StackPanel>
+                                <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" MinHeight="34" Height="34" Padding="12,0" Click="PrinterSettings_Click"
+                                        ToolTip="Configurar impresora" AutomationProperties.Name="Configurar impresora">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Icon}" Text="&#xE713;" Foreground="{StaticResource TealDark}" FontSize="13" />
-                                        <TextBlock Text="Impresora" Foreground="{StaticResource TealDark}" FontWeight="SemiBold" FontSize="12" Margin="7,0,0,0" />
+                                        <TextBlock Style="{StaticResource Icon}" Text="&#xE713;" FontSize="13" Foreground="{StaticResource TealDark}" />
+                                        <TextBlock Text="Impresora" FontSize="12" Margin="7,0,0,0" />
                                     </StackPanel>
                                 </Button>
-                                <StackPanel>
-                                    <TextBlock Text="Facturas recientes" FontSize="19" FontWeight="SemiBold" Foreground="{StaticResource Ink}" />
-                                    <TextBlock Text="{Binding TotalCount, StringFormat={}{0} facturas}" Foreground="{StaticResource Muted}" FontSize="12" Margin="0,3,0,0" />
-                                </StackPanel>
-                            </DockPanel>
+                            </Grid>
+
                             <Grid>
-                                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                    <ItemsControl ItemsSource="{Binding Invoices}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Button Tag="{Binding}" Style="{StaticResource ProductCard}" Margin="0,0,4,8"
-                                                        Click="InvoiceItem_Click" HorizontalContentAlignment="Stretch">
-                                                    <Grid>
-                                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                                        <StackPanel>
-                                                        <TextBlock FontWeight="SemiBold" Foreground="{StaticResource Ink}"><Run Text="Factura #" /><Run Text="{Binding Number}" /></TextBlock>
-                                                            <TextBlock Text="{Binding IssuedAtUtc, StringFormat={}{0:dd MMM yyyy · HH:mm}}" Foreground="{StaticResource Muted}" FontSize="12" Margin="0,4,0,0" />
-                                                        </StackPanel>
-                                                        <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-                                                            <TextBlock Text="{Binding Total, StringFormat={}{0:C2}}" FontWeight="Bold" Foreground="{StaticResource Ink}" HorizontalAlignment="Right" />
-                                                            <TextBlock Text="{Binding Status}" Foreground="{StaticResource Teal}" FontSize="11" HorizontalAlignment="Right" Margin="0,4,0,0" />
-                                                        </StackPanel>
-                                                    </Grid>
-                                                </Button>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </ScrollViewer>
-                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"
+                                <!-- ListBox: selección visible + flechas ↑↓ + Tab entra una vez -->
+                                <ListBox x:Name="InvoicesList" ItemsSource="{Binding Invoices}" Background="Transparent" BorderThickness="0"
+                                         Padding="0,0,6,0" ItemContainerStyle="{StaticResource InvoiceRow}"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch"
+                                         SelectionMode="Single" SelectionChanged="InvoiceList_SelectionChanged"
+                                         AutomationProperties.Name="Lista de facturas">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock FontWeight="SemiBold" Foreground="{StaticResource Ink}"><Run Text="Factura #" /><Run Text="{Binding Number}" /></TextBlock>
+                                                    <TextBlock Text="{Binding IssuedAtUtc, StringFormat={}{0:dd MMM yyyy · HH:mm}}" Style="{StaticResource TextCaption}" Margin="0,3,0,0" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                                    <TextBlock Text="{Binding Total, StringFormat={}{0:C2}}" FontWeight="Bold" Foreground="{StaticResource Ink}" HorizontalAlignment="Right" />
+                                                    <Border Background="{StaticResource TealTint}" CornerRadius="{StaticResource RadiusPill}" Padding="8,1" Margin="0,4,0,0" HorizontalAlignment="Right">
+                                                        <TextBlock Text="{Binding Status}" Foreground="{StaticResource TealDark}" FontSize="11" FontWeight="SemiBold" />
+                                                    </Border>
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+                                <!-- Vacío con acción -->
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,6,0" Background="White"
                                             Visibility="{Binding HasNoInvoices, Converter={StaticResource BoolToVisibility}}">
-                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE8A5;" FontSize="34" Foreground="#B8C4CD" HorizontalAlignment="Center" />
-                                    <TextBlock Text="Aún no hay facturas" FontWeight="SemiBold" Foreground="{StaticResource Ink}" Margin="0,10,0,3" HorizontalAlignment="Center" />
-                                    <TextBlock Text="Las ventas completadas aparecerán aquí." Foreground="{StaticResource Muted}" TextAlignment="Center" />
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE8A5;" FontSize="32" Foreground="{StaticResource Subtle}" HorizontalAlignment="Center" />
+                                    <TextBlock Text="Aún no hay facturas" Style="{StaticResource TextTitle}" Margin="0,10,0,3" HorizontalAlignment="Center" />
+                                    <TextBlock Text="Las ventas completadas aparecerán aquí." Style="{StaticResource TextSecondary}" TextAlignment="Center" />
+                                    <Button Content="Ir al punto de venta" Style="{StaticResource PrimaryButton}" Margin="0,14,0,0" HorizontalAlignment="Center" Click="GoToPos_Click" />
                                 </StackPanel>
-                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Background="White"
+
+                                <!-- Cargando: skeleton de filas -->
+                                <StackPanel Background="White" IsHitTestVisible="False" VerticalAlignment="Top"
                                             Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}">
-                                    <ProgressBar IsIndeterminate="True" Width="150" Height="4" Foreground="{StaticResource Teal}" />
-                                    <TextBlock Text="Cargando facturas…" Foreground="{StaticResource Muted}" Margin="0,10,0,0" HorizontalAlignment="Center" />
+                                    <Border Style="{StaticResource SkeletonBlock}" Height="58" CornerRadius="12" Margin="0,0,6,6" />
+                                    <Border Style="{StaticResource SkeletonBlock}" Height="58" CornerRadius="12" Margin="0,0,6,6" />
+                                    <Border Style="{StaticResource SkeletonBlock}" Height="58" CornerRadius="12" Margin="0,0,6,6" />
+                                    <Border Style="{StaticResource SkeletonBlock}" Height="58" CornerRadius="12" Margin="0,0,6,6" />
                                 </StackPanel>
-                                <Border Background="{StaticResource DangerTint}" CornerRadius="10" Padding="14" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                                <!-- Error con reintento -->
+                                <Border Background="{StaticResource DangerTint}" BorderBrush="{StaticResource DangerBorder}" BorderThickness="1"
+                                        CornerRadius="{StaticResource RadiusLg}" Padding="14" HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Setter Property="Visibility" Value="Visible" />
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ErrorMessage}" Value=""><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
-                                                <DataTrigger Binding="{Binding ErrorMessage}" Value="{x:Null}"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
+                                                <DataTrigger Binding="{Binding ErrorMessage}" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding ErrorMessage}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
-                                    <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource Danger}" TextWrapping="Wrap" />
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource Danger}" TextWrapping="Wrap" MaxWidth="260" />
+                                        <Button Content="Reintentar" Style="{StaticResource SecondaryButton}" Margin="0,10,0,0" HorizontalAlignment="Left" Click="RetryInvoices_Click" />
+                                    </StackPanel>
                                 </Border>
                             </Grid>
                         </DockPanel>
                     </Border>
-                    <Border Grid.Column="2" Style="{StaticResource Card}" Padding="22">
+
+                    <!-- Detalle -->
+                    <Border Grid.Column="2" Style="{StaticResource Card}" Padding="20">
                         <Grid>
+                            <!-- Sin selección -->
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
                                 <StackPanel.Style>
                                     <Style TargetType="StackPanel">
                                         <Setter Property="Visibility" Value="Visible" />
-                                        <Style.Triggers><DataTrigger Binding="{Binding HasDetails}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasDetails}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
                                     </Style>
                                 </StackPanel.Style>
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xE8A5;" FontSize="38" Foreground="#B8C4CD" HorizontalAlignment="Center" />
-                                <TextBlock Text="Selecciona una factura" FontSize="17" FontWeight="SemiBold" Foreground="{StaticResource Ink}" Margin="0,12,0,4" HorizontalAlignment="Center" />
-                                <TextBlock Text="Aquí verás las líneas y los datos guardados al emitirla." Foreground="{StaticResource Muted}" TextAlignment="Center" TextWrapping="Wrap" MaxWidth="330" />
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE8A5;" FontSize="34" Foreground="{StaticResource Subtle}" HorizontalAlignment="Center" />
+                                <TextBlock Text="Selecciona una factura" Style="{StaticResource TextTitle}" Margin="0,12,0,4" HorizontalAlignment="Center" />
+                                <TextBlock Text="Aquí verás las líneas y los datos guardados al emitirla." Style="{StaticResource TextSecondary}" TextAlignment="Center" TextWrapping="Wrap" MaxWidth="320" />
                             </StackPanel>
-                            <StackPanel Visibility="{Binding HasDetails, Converter={StaticResource BoolToVisibility}}">
-                                <DockPanel>
-                                    <Border DockPanel.Dock="Right" Background="{StaticResource TealTint}" CornerRadius="10" Padding="10,5">
-                                        <TextBlock Text="{Binding Details.Status}" Foreground="{StaticResource TealDark}" FontWeight="SemiBold" />
+
+                            <!-- Con detalle: cabecera fija · líneas con scroll propio · total y acción fijos (sin MaxHeight rígido) -->
+                            <DockPanel Visibility="{Binding HasDetails, Converter={StaticResource BoolToVisibility}}">
+                                <StackPanel DockPanel.Dock="Top">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock FontSize="22" FontWeight="Bold" Foreground="{StaticResource Ink}"><Run Text="Factura #" /><Run Text="{Binding Details.Number}" /></TextBlock>
+                                            <TextBlock Text="{Binding Details.IssuedAtUtc, StringFormat={}{0:dd MMMM yyyy · HH:mm}}" Style="{StaticResource TextSecondary}" Margin="0,3,0,0" />
+                                        </StackPanel>
+                                        <Border Grid.Column="1" Background="{StaticResource TealTint}" CornerRadius="{StaticResource RadiusPill}" Padding="12,4" VerticalAlignment="Top">
+                                            <TextBlock Text="{Binding Details.Status}" Foreground="{StaticResource TealDark}" FontWeight="SemiBold" FontSize="13" />
+                                        </Border>
+                                    </Grid>
+                                    <TextBlock Text="{Binding Details.CustomerName, TargetNullValue=Venta sin cliente}" Foreground="{StaticResource InkSoft}" Margin="0,14,0,12" />
+                                    <Separator Background="{StaticResource Line}" />
+                                    <TextBlock Text="Detalle" FontWeight="SemiBold" Foreground="{StaticResource Ink}" Margin="0,12,0,8" />
+                                </StackPanel>
+
+                                <StackPanel DockPanel.Dock="Bottom" Margin="0,10,0,0">
+                                    <Border Background="{StaticResource Tile}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="{StaticResource RadiusMd}" Padding="14,10">
+                                        <DockPanel>
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding Details.Total, StringFormat={}{0:C2}}" FontSize="22" FontWeight="Bold" Foreground="{StaticResource TealDark}" />
+                                            <TextBlock Text="Total" Style="{StaticResource TextTitle}" VerticalAlignment="Center" />
+                                        </DockPanel>
                                     </Border>
-                                    <StackPanel>
-                                        <TextBlock FontSize="23" FontWeight="Bold" Foreground="{StaticResource Ink}"><Run Text="Factura #" /><Run Text="{Binding Details.Number}" /></TextBlock>
-                                        <TextBlock Text="{Binding Details.IssuedAtUtc, StringFormat={}{0:dd MMMM yyyy · HH:mm}}" Foreground="{StaticResource Muted}" Margin="0,4,0,0" />
-                                    </StackPanel>
-                                </DockPanel>
-                                <TextBlock Text="{Binding Details.CustomerName, TargetNullValue=Venta sin cliente}" Foreground="{StaticResource InkSoft}" Margin="0,18,0,12" />
-                                <Separator Background="{StaticResource Line}" />
-                                <TextBlock Text="Detalle" FontWeight="SemiBold" Foreground="{StaticResource Ink}" Margin="0,14,0,8" />
-                                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="340">
+                                    <Button Style="{StaticResource PrimaryButton}" Margin="0,10,0,0" Height="44" Click="PrintInvoice_Click"
+                                            AutomationProperties.AcceleratorKey="Ctrl+P">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE749;" Foreground="White" FontSize="14" />
+                                            <TextBlock Text="Imprimir recibo" Margin="8,0,0,0" />
+                                            <TextBlock Text="   Ctrl P" FontSize="12" FontWeight="Normal" Margin="2,0,0,0" />
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                                     <ItemsControl ItemsSource="{Binding Details.Lines}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Grid Margin="0,0,0,12">
-                                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                <Grid Margin="0,0,10,12">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
                                                     <StackPanel>
-                                                        <TextBlock Text="{Binding ProductName}" FontWeight="SemiBold" Foreground="{StaticResource Ink}" />
-                                                        <TextBlock Foreground="{StaticResource Muted}" FontSize="12" Margin="0,3,0,0"><Run Text="{Binding Quantity, StringFormat={}{0:0.##}}" /><Run Text=" × " /><Run Text="{Binding UnitPrice, StringFormat={}{0:C2}}" /></TextBlock>
+                                                        <TextBlock Text="{Binding ProductName}" FontWeight="SemiBold" Foreground="{StaticResource Ink}" TextWrapping="Wrap" />
+                                                        <TextBlock Style="{StaticResource TextCaption}" Margin="0,3,0,0"><Run Text="{Binding Quantity, StringFormat={}{0:0.##}}" /><Run Text=" × " /><Run Text="{Binding UnitPrice, StringFormat={}{0:C2}}" /></TextBlock>
                                                     </StackPanel>
-                                                    <TextBlock Grid.Column="1" Text="{Binding LineTotal, StringFormat={}{0:C2}}" FontWeight="SemiBold" Foreground="{StaticResource Ink}" VerticalAlignment="Center" />
+                                                    <TextBlock Grid.Column="1" Text="{Binding LineTotal, StringFormat={}{0:C2}}" FontWeight="SemiBold" Foreground="{StaticResource Ink}" VerticalAlignment="Center" Margin="12,0,0,0" />
                                                 </Grid>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                 </ScrollViewer>
-                                <Border Background="{StaticResource Tile}" CornerRadius="12" Padding="16" Margin="0,12,0,0">
-                                    <DockPanel>
-                                        <TextBlock DockPanel.Dock="Right" Text="{Binding Details.Total, StringFormat={}{0:C2}}" FontSize="22" FontWeight="Bold" Foreground="{StaticResource Teal}" />
-                                        <TextBlock Text="Total" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource Ink}" VerticalAlignment="Center" />
-                                    </DockPanel>
-                                </Border>
-                                <Button Style="{StaticResource PrimaryButton}"
-                                        Margin="0,12,0,0" Padding="14,11" Click="PrintInvoice_Click">
-                                    <Button.Content>
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE749;" Foreground="White" FontSize="14" />
-                                            <TextBlock Text="Imprimir recibo" Foreground="White" FontWeight="SemiBold" Margin="8,0,0,0" />
-                                        </StackPanel>
-                                    </Button.Content>
-                                </Button>
-                            </StackPanel>
+                            </DockPanel>
+
+                            <!-- Cargando detalle -->
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Background="White"
                                         Visibility="{Binding IsLoadingDetails, Converter={StaticResource BoolToVisibility}}">
-                                <ProgressBar IsIndeterminate="True" Width="150" Height="4" Foreground="{StaticResource Teal}" />
-                                <TextBlock Text="Cargando detalle…" Foreground="{StaticResource Muted}" Margin="0,10,0,0" HorizontalAlignment="Center" />
+                                <ProgressBar IsIndeterminate="True" Width="150" Height="4" BorderThickness="0" Foreground="{StaticResource Teal}" Background="{StaticResource TealTint}" />
+                                <TextBlock Text="Cargando detalle…" Style="{StaticResource TextSecondary}" Margin="0,10,0,0" HorizontalAlignment="Center" />
                             </StackPanel>
-                            <Border Background="{StaticResource DangerTint}" CornerRadius="10" Padding="14" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                            <!-- Error de detalle -->
+                            <Border Background="{StaticResource DangerTint}" BorderBrush="{StaticResource DangerBorder}" BorderThickness="1"
+                                    CornerRadius="{StaticResource RadiusLg}" Padding="14" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="Visibility" Value="Visible" />
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding DetailsErrorMessage}" Value=""><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
-                                            <DataTrigger Binding="{Binding DetailsErrorMessage}" Value="{x:Null}"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
+                                            <DataTrigger Binding="{Binding DetailsErrorMessage}" Value="">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding DetailsErrorMessage}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Border.Style>
-                                <TextBlock Text="{Binding DetailsErrorMessage}" Foreground="{StaticResource Danger}" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding DetailsErrorMessage}" Foreground="{StaticResource Danger}" TextWrapping="Wrap" MaxWidth="300" />
                             </Border>
                         </Grid>
                     </Border>
                 </Grid>
             </Grid>
+        </Grid>
+
+        <!-- ===================== TOASTS (esquina inferior derecha, no mueven el layout) ===================== -->
+        <StackPanel x:Name="ToastHost" Grid.Row="1" Width="360" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                    Margin="0,0,24,20" Panel.ZIndex="40" Focusable="False"
+                    AutomationProperties.LiveSetting="Polite" />
+
+        <!-- ===================== DIÁLOGO DE CONFIRMACIÓN (modal en la propia ventana) ===================== -->
+        <Grid x:Name="ConfirmLayer" Grid.Row="1" Visibility="Collapsed" Panel.ZIndex="50">
+            <Border Background="#99172A3A" />
+            <Border Width="420" Padding="24" Background="White" CornerRadius="{StaticResource RadiusXl}"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" Effect="{StaticResource ShadowPopover}"
+                    KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.ControlTabNavigation="Cycle">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="36" Height="36" CornerRadius="18" Background="{StaticResource WarningTint}">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE7BA;" Foreground="{StaticResource Warning}" HorizontalAlignment="Center" />
+                        </Border>
+                        <TextBlock x:Name="ConfirmTitle" Style="{StaticResource TextTitle}" FontSize="18" Margin="12,0,0,0"
+                                   VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="320" AutomationProperties.LiveSetting="Assertive" />
+                    </StackPanel>
+                    <TextBlock x:Name="ConfirmMessage" Style="{StaticResource TextSecondary}" FontSize="14" TextWrapping="Wrap" Margin="48,10,0,0" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">
+                        <Button x:Name="ConfirmCancelButton" Style="{StaticResource SecondaryButton}" Content="Cancelar" Click="ConfirmCancel_Click" />
+                        <Button x:Name="ConfirmAcceptButton" Style="{StaticResource DangerButton}" Content="Aceptar" Margin="10,0,0,0" Click="ConfirmAccept_Click" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
         </Grid>
     </Grid>
 </Window>
