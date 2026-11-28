@@ -347,6 +347,91 @@
                                 </StackPanel>
                             </Border>
 
+                            <!-- Dashboard: solo visible para Owner -->
+                            <Border x:Name="OwnerDashboardPanel" Style="{StaticResource Card}" Padding="20" Margin="0,12,0,0" Visibility="Collapsed">
+                                <StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="Resumen del negocio" Style="{StaticResource TextTitle}" FontSize="20" />
+                                            <TextBlock Text="Ventas y cobros registrados en UTC" Style="{StaticResource TextCaption}" Margin="0,3,0,0" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <DatePicker SelectedDate="{Binding FromDate, Mode=TwoWay}" Width="132" Height="38" Margin="0,0,8,0" />
+                                            <TextBlock Text="a" Foreground="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                            <DatePicker SelectedDate="{Binding ToDate, Mode=TwoWay}" Width="132" Height="38" Margin="0,0,8,0" />
+                                            <ComboBox x:Name="DashboardGroupByComboBox" Width="112" Height="38" SelectedIndex="0" Margin="0,0,8,0">
+                                                <ComboBoxItem Content="Por día" Tag="day" />
+                                                <ComboBoxItem Content="Por mes" Tag="month" />
+                                            </ComboBox>
+                                            <Button Style="{StaticResource PrimaryButton}" Content="Actualizar" Height="38" MinHeight="38"
+                                                    Padding="12,0" Click="DashboardRefresh_Click" ToolTip="Actualizar indicadores" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <UniformGrid Columns="4" Margin="0,18,0,0">
+                                        <Border Background="{StaticResource TealTint}" CornerRadius="{StaticResource RadiusMd}" Padding="14" Margin="0,0,10,0">
+                                            <StackPanel>
+                                                <TextBlock Text="VENTAS" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource TealDark}" />
+                                                <TextBlock Text="{Binding Report.SalesTotal, StringFormat={}{0:C2}, TargetNullValue=—}" FontSize="21" FontWeight="SemiBold" Foreground="{StaticResource Ink}" Margin="0,5,0,0" />
+                                                <TextBlock Text="{Binding Report.SalesChangePercent, StringFormat={}{0:+0.##;-0.##;0}% vs. período anterior}" FontSize="11" Foreground="{StaticResource Muted}" Margin="0,3,0,0" />
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Background="{StaticResource Tile}" CornerRadius="{StaticResource RadiusMd}" Padding="14" Margin="0,0,10,0">
+                                            <StackPanel>
+                                                <TextBlock Text="FACTURAS EMITIDAS" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Muted}" />
+                                                <TextBlock Text="{Binding Report.InvoiceCount, StringFormat={}{0:N0}, TargetNullValue=—}" FontSize="21" FontWeight="SemiBold" Foreground="{StaticResource Ink}" Margin="0,5,0,0" />
+                                                <TextBlock Text="{Binding Report.PreviousInvoiceCount, StringFormat={}{0:N0} período anterior}" FontSize="11" Foreground="{StaticResource Muted}" Margin="0,3,0,0" />
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Background="{StaticResource Tile}" CornerRadius="{StaticResource RadiusMd}" Padding="14" Margin="0,0,10,0">
+                                            <StackPanel>
+                                                <TextBlock Text="TICKET PROMEDIO" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Muted}" />
+                                                <TextBlock Text="{Binding Report.AverageTicket, StringFormat={}{0:C2}, TargetNullValue=—}" FontSize="21" FontWeight="SemiBold" Foreground="{StaticResource Ink}" Margin="0,5,0,0" />
+                                                <TextBlock Text="Por factura emitida" FontSize="11" Foreground="{StaticResource Muted}" Margin="0,3,0,0" />
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Background="{StaticResource Tile}" CornerRadius="{StaticResource RadiusMd}" Padding="14">
+                                            <StackPanel>
+                                                <TextBlock Text="COBROS REGISTRADOS" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Muted}" />
+                                                <TextBlock Text="{Binding Report.PaymentsCollected, StringFormat={}{0:C2}, TargetNullValue=—}" FontSize="21" FontWeight="SemiBold" Foreground="{StaticResource Ink}" Margin="0,5,0,0" />
+                                                <TextBlock Text="Pagos no anulados" FontSize="11" Foreground="{StaticResource Muted}" Margin="0,3,0,0" />
+                                            </StackPanel>
+                                        </Border>
+                                    </UniformGrid>
+
+                                    <Border Background="{StaticResource DangerTint}" BorderBrush="{StaticResource DangerBorder}" BorderThickness="1"
+                                            CornerRadius="{StaticResource RadiusMd}" Padding="12" Margin="0,14,0,0">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers><DataTrigger Binding="{Binding HasError}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource Danger}" TextWrapping="Wrap" />
+                                    </Border>
+                                    <ProgressBar IsIndeterminate="True" Height="3" Margin="0,14,0,0" Foreground="{StaticResource Teal}"
+                                                 Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
+
+                                    <StackPanel Margin="0,18,0,0">
+                                        <TextBlock Text="Tendencia de ventas" Style="{StaticResource TextTitle}" Margin="0,0,0,10" />
+                                        <ItemsControl ItemsSource="{Binding Trend}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid Margin="0,0,0,9">
+                                                        <Grid.ColumnDefinitions><ColumnDefinition Width="90" /><ColumnDefinition Width="*" /><ColumnDefinition Width="100" /></Grid.ColumnDefinitions>
+                                                        <TextBlock Text="{Binding PeriodStartUtc, StringFormat={}{0:dd MMM}}" Style="{StaticResource TextCaption}" VerticalAlignment="Center" />
+                                                        <ProgressBar Grid.Column="1" Height="10" Minimum="0" Maximum="{Binding DataContext.MaxTrendSales, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                     Value="{Binding SalesTotal}" Foreground="{StaticResource Teal}" Background="{StaticResource Tile}" VerticalAlignment="Center" />
+                                                        <TextBlock Grid.Column="2" Text="{Binding SalesTotal, StringFormat={}{0:C2}}" FontWeight="SemiBold" Foreground="{StaticResource Ink}" TextAlignment="Right" VerticalAlignment="Center" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
                             <!-- Acciones rápidas -->
                             <Grid Margin="0,12,0,0">
                                 <Grid.ColumnDefinitions>
