@@ -4,6 +4,8 @@ using Vylersant_Facturacion.Desktop.Authentication;
 using Vylersant_Facturacion.Desktop.PointOfSale;
 using Vylersant_Facturacion.Contracts.Products;
 using Vylersant_Facturacion.Contracts.Invoices;
+using Vylersant_Facturacion.Application.Printing;
+using Vylersant_Facturacion.Desktop.Printing;
 
 namespace Vylersant_Facturacion.Desktop;
 
@@ -12,13 +14,18 @@ public partial class MainWindow : Window
     private readonly SessionService _sessionService;
     private readonly PosViewModel _posViewModel;
     private readonly InvoiceHistoryViewModel _invoiceHistoryViewModel;
+    private readonly ReceiptPrinterSettingsStore _printerSettingsStore;
+    private readonly EscPosReceiptPrinter _receiptPrinter;
     private AuthenticatedSession? _currentSession;
 
-    public MainWindow(SessionService sessionService, ICatalogApiClient catalogApiClient, IInvoiceApiClient invoiceApiClient)
+    public MainWindow(SessionService sessionService, ICatalogApiClient catalogApiClient, IInvoiceApiClient invoiceApiClient,
+        ReceiptPrinterSettingsStore printerSettingsStore, EscPosReceiptPrinter receiptPrinter)
     {
         _sessionService = sessionService;
         _posViewModel = new PosViewModel(catalogApiClient, invoiceApiClient);
         _invoiceHistoryViewModel = new InvoiceHistoryViewModel(invoiceApiClient);
+        _printerSettingsStore = printerSettingsStore;
+        _receiptPrinter = receiptPrinter;
         InitializeComponent();
         LoginPanel.Visibility = Visibility.Visible;
         PosContent.DataContext = _posViewModel;
@@ -120,6 +127,46 @@ public partial class MainWindow : Window
         if (_currentSession is null || sender is not FrameworkElement { Tag: InvoiceListItemResponse invoice })
             return;
         await _invoiceHistoryViewModel.LoadDetailsAsync(invoice, _currentSession.Tokens.AccessToken);
+    }
+
+    private void PrinterSettings_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentSession is null)
+            return;
+        var dialog = new PrinterSettingsWindow(_currentSession.User.BusinessId, _printerSettingsStore)
+        {
+            Owner = this
+        };
+        dialog.ShowDialog();
+    }
+
+    private async void PrintInvoice_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentSession is null || _invoiceHistoryViewModel.Details is not { } details)
+            return;
+
+        var businessId = _currentSession.User.BusinessId;
+        var settings = await _printerSettingsStore.LoadAsync(businessId);
+        if (settings is null)
+        {
+            PrinterSettings_Click(sender, e);
+            settings = await _printerSettingsStore.LoadAsync(businessId);
+            if (settings is null)
+                return;
+        }
+
+        var document = new ReceiptPrintDocument(
+            details.Number,
+            details.IssuedAtUtc,
+            details.CustomerName,
+            details.Total,
+            details.Lines.Select(line => new ReceiptPrintLine(line.ProductName, line.Quantity, line.UnitPrice, line.LineTotal)).ToList());
+        var result = await _receiptPrinter.PrintAsync(document, settings);
+        MessageBox.Show(this,
+            result.Succeeded ? $"Recibo enviado a la impresora. Trabajo #{result.JobId}." : result.ErrorMessage ?? "No se pudo imprimir el recibo.",
+            result.Succeeded ? "Impresión enviada" : "Error de impresión",
+            MessageBoxButton.OK,
+            result.Succeeded ? MessageBoxImage.Information : MessageBoxImage.Warning);
     }
 
     private void MinimizeWindow_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
