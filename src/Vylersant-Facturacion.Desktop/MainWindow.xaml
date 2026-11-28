@@ -588,24 +588,45 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Button Width="196" Margin="0,0,12,12" Tag="{Binding}"
+                                                <Button Width="204" Margin="0,0,12,12" Tag="{Binding}"
                                                         Style="{StaticResource ProductCard}" Click="AddProduct_Click">
                                                     <StackPanel>
+                                                        <Grid Margin="0,0,0,12">
+                                                            <Border Width="48" Height="48" CornerRadius="15"
+                                                                    Background="{StaticResource TealTint}" HorizontalAlignment="Left">
+                                                                <TextBlock Style="{StaticResource Icon}" Text="&#xE734;" FontSize="22"
+                                                                           Foreground="{StaticResource Teal}" HorizontalAlignment="Center" />
+                                                            </Border>
+                                                            <Border Width="28" Height="28" CornerRadius="14"
+                                                                    Background="{StaticResource Teal}" HorizontalAlignment="Right"
+                                                                    VerticalAlignment="Center">
+                                                                <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="11"
+                                                                           Foreground="White" HorizontalAlignment="Center" />
+                                                            </Border>
+                                                        </Grid>
                                                         <TextBlock Text="{Binding Name}" FontFamily="Segoe UI Variable Display, Segoe UI"
-                                                                   FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource Ink}"
+                                                                   FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource Ink}"
                                                                    LineHeight="20" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"
                                                                    MinHeight="42" MaxHeight="42" />
-                                                        <TextBlock Text="{Binding Sku}" Foreground="{StaticResource Muted}"
-                                                                   FontFamily="Segoe UI" FontSize="11" Margin="0,5,0,0"
-                                                                   TextTrimming="CharacterEllipsis" />
-                                                        <TextBlock Text="{Binding Price, StringFormat={}{0:C2}}"
-                                                                   FontFamily="Segoe UI Variable Display, Segoe UI" FontSize="22"
-                                                                   FontWeight="SemiBold" Foreground="{StaticResource Teal}"
-                                                                   Margin="0,9,0,13" />
-                                                        <Border Background="{StaticResource Teal}" CornerRadius="8" Padding="0,8">
+                                                        <Border Background="{StaticResource Tile}" CornerRadius="6"
+                                                                Padding="7,4" Margin="0,8,0,0" HorizontalAlignment="Left">
+                                                            <TextBlock Foreground="{StaticResource Muted}" FontFamily="Segoe UI"
+                                                                       FontSize="10" TextTrimming="CharacterEllipsis">
+                                                                <Run Text="SKU  " /><Run Text="{Binding Sku}" />
+                                                            </TextBlock>
+                                                        </Border>
+                                                        <StackPanel Margin="0,12,0,13">
+                                                            <TextBlock Text="PRECIO UNITARIO" FontSize="9" FontWeight="SemiBold"
+                                                                       Foreground="{StaticResource Subtle}" />
+                                                            <TextBlock Text="{Binding Price, StringFormat={}{0:C2}}"
+                                                                       FontFamily="Segoe UI Variable Display, Segoe UI" FontSize="23"
+                                                                       FontWeight="SemiBold" Foreground="{StaticResource Teal}" Margin="0,2,0,0" />
+                                                        </StackPanel>
+                                                        <Border Background="{StaticResource Teal}" CornerRadius="8" Padding="0,9">
                                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                                                <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="12" Foreground="White" />
-                                                                <TextBlock Text="Agregar" Foreground="White" FontWeight="SemiBold" Margin="8,0,0,0" />
+                                                                <TextBlock Style="{StaticResource Icon}" Text="&#xE7BF;" FontSize="12" Foreground="White" />
+                                                                <TextBlock Text="Añadir al carrito" Foreground="White" FontSize="12"
+                                                                           FontWeight="SemiBold" Margin="8,0,0,0" />
                                                             </StackPanel>
                                                         </Border>
                                                     </StackPanel>
