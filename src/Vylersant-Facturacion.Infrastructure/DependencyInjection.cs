@@ -14,6 +14,7 @@ using Vylersant_Facturacion.Infrastructure.Persistence;
 using Vylersant_Facturacion.Infrastructure.Repositories;
 using Vylersant_Facturacion.Infrastructure.Repository;
 using Vylersant_Facturacion.Infrastructure.Security;
+using Vylersant_Facturacion.Application.Dashboard;
 
 namespace Vylersant_Facturacion.Infrastructure
 {
@@ -55,6 +56,7 @@ namespace Vylersant_Facturacion.Infrastructure
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IInvoiceRepository, InvoiceRepository>();
             services.AddScoped<IPaymentRepository, PaymentRepository>();
+            services.AddScoped<IDashboardRepository, DashboardRepository>();
 
             return services;
         }
