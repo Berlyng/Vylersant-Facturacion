@@ -810,10 +810,20 @@
                     </Grid.ColumnDefinitions>
                     <Border Grid.Column="0" Style="{StaticResource Card}" Padding="18">
                         <DockPanel>
-                            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,14">
-                                <TextBlock Text="Facturas recientes" FontSize="19" FontWeight="SemiBold" Foreground="{StaticResource Ink}" />
-                                <TextBlock Text="{Binding TotalCount, StringFormat={}{0} facturas}" Foreground="{StaticResource Muted}" FontSize="12" Margin="0,3,0,0" />
-                            </StackPanel>
+                            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,14" LastChildFill="True">
+                                <Button DockPanel.Dock="Right" Click="PrinterSettings_Click" ToolTip="Configurar impresora"
+                                        Background="{StaticResource TealTint}" BorderThickness="0" Padding="11,9"
+                                        Cursor="Hand" Margin="8,0,0,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Icon}" Text="&#xE713;" Foreground="{StaticResource TealDark}" FontSize="13" />
+                                        <TextBlock Text="Impresora" Foreground="{StaticResource TealDark}" FontWeight="SemiBold" FontSize="12" Margin="7,0,0,0" />
+                                    </StackPanel>
+                                </Button>
+                                <StackPanel>
+                                    <TextBlock Text="Facturas recientes" FontSize="19" FontWeight="SemiBold" Foreground="{StaticResource Ink}" />
+                                    <TextBlock Text="{Binding TotalCount, StringFormat={}{0} facturas}" Foreground="{StaticResource Muted}" FontSize="12" Margin="0,3,0,0" />
+                                </StackPanel>
+                            </DockPanel>
                             <Grid>
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <ItemsControl ItemsSource="{Binding Invoices}">
@@ -911,6 +921,15 @@
                                         <TextBlock Text="Total" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource Ink}" VerticalAlignment="Center" />
                                     </DockPanel>
                                 </Border>
+                                <Button Style="{StaticResource PrimaryButton}"
+                                        Margin="0,12,0,0" Padding="14,11" Click="PrintInvoice_Click">
+                                    <Button.Content>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE749;" Foreground="White" FontSize="14" />
+                                            <TextBlock Text="Imprimir recibo" Foreground="White" FontWeight="SemiBold" Margin="8,0,0,0" />
+                                        </StackPanel>
+                                    </Button.Content>
+                                </Button>
                             </StackPanel>
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Background="White"
                                         Visibility="{Binding IsLoadingDetails, Converter={StaticResource BoolToVisibility}}">
