@@ -15,6 +15,8 @@ public sealed class InvoiceHistoryViewModel(IInvoiceApiClient invoiceApiClient) 
     private InvoiceListItemResponse? _selectedInvoice;
     private InvoiceDetailsResponse? _details;
     private long _totalCount;
+    private readonly List<InvoiceListItemResponse> _loadedInvoices = [];
+    private string _searchText = string.Empty;
 
     public ObservableCollection<InvoiceListItemResponse> Invoices { get; } = [];
 
@@ -59,8 +61,9 @@ public sealed class InvoiceHistoryViewModel(IInvoiceApiClient invoiceApiClient) 
     public long TotalCount
     {
         get => _totalCount;
-        private set { _totalCount = value; OnPropertyChanged(); }
+        private set { _totalCount = value; OnPropertyChanged(); OnPropertyChanged(nameof(VisibleCount)); }
     }
+    public long VisibleCount => string.IsNullOrWhiteSpace(_searchText) ? TotalCount : Invoices.Count;
 
     public async Task LoadAsync(string accessToken, CancellationToken cancellationToken = default)
     {
@@ -71,11 +74,10 @@ public sealed class InvoiceHistoryViewModel(IInvoiceApiClient invoiceApiClient) 
         try
         {
             var page = await invoiceApiClient.GetPageAsync(1, 50, accessToken, cancellationToken);
-            Invoices.Clear();
-            foreach (var invoice in page.Items)
-                Invoices.Add(invoice);
+            _loadedInvoices.Clear();
+            _loadedInvoices.AddRange(page.Items);
             TotalCount = page.TotalCount;
-            OnPropertyChanged(nameof(HasNoInvoices));
+            ApplySearch();
         }
         catch (InvoiceApiException exception)
         {
@@ -95,6 +97,23 @@ public sealed class InvoiceHistoryViewModel(IInvoiceApiClient invoiceApiClient) 
         {
             IsLoading = false;
         }
+    }
+
+    public void Search(string? query)
+    {
+        _searchText = query?.Trim() ?? string.Empty;
+        ApplySearch();
+    }
+
+    private void ApplySearch()
+    {
+        Invoices.Clear();
+        foreach (var invoice in _loadedInvoices.Where(invoice =>
+                     string.IsNullOrWhiteSpace(_searchText) ||
+                     invoice.Number.ToString(System.Globalization.CultureInfo.InvariantCulture).Contains(_searchText, StringComparison.OrdinalIgnoreCase)))
+            Invoices.Add(invoice);
+        OnPropertyChanged(nameof(VisibleCount));
+        OnPropertyChanged(nameof(HasNoInvoices));
     }
 
     public async Task LoadDetailsAsync(InvoiceListItemResponse invoice, string accessToken, CancellationToken cancellationToken = default)
