@@ -147,6 +147,23 @@ public sealed class PosViewModel(ICatalogApiClient catalogClient, IInvoiceApiCli
             OnCartChanged();
     }
 
+    public void RestoreProduct(ProductResponse product, decimal quantity)
+    {
+        if (!product.IsActive || quantity < 1m)
+            return;
+        var existing = Cart.FirstOrDefault(line => line.ProductId == product.Id);
+        if (existing is null)
+        {
+            var line = new CartLineViewModel(product);
+            Cart.Add(line);
+            line.PropertyChanged += CartLine_PropertyChanged;
+            line.Quantity = quantity;
+        }
+        else
+            existing.Quantity += quantity;
+        OnCartChanged();
+    }
+
     public void Clear()
     {
         Cart.Clear();
@@ -154,6 +171,14 @@ public sealed class PosViewModel(ICatalogApiClient catalogClient, IInvoiceApiCli
         Products.Clear();
         _allProducts.Clear();
         SelectedCustomer = null;
+        SaleErrorMessage = null;
+        LastCreatedInvoice = null;
+        OnCartChanged();
+    }
+
+    public void ClearCart()
+    {
+        Cart.Clear();
         SaleErrorMessage = null;
         LastCreatedInvoice = null;
         OnCartChanged();
